@@ -1,0 +1,73 @@
+name: Deploy Frontend
+
+# Déploie sur https://forum.instapoint.site à chaque push sur la branche `production`.
+# Secrets du dépôt requis : APP_HOST, APP_USER, APP_PASS (même principe que Educ360).
+on:
+  push:
+    branches: [production]
+
+concurrency:
+  group: deploy-frontend
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      SSHPASS: ${{ secrets.APP_PASS }}
+      TARGET_DIR: /var/www/forum.instapoint.site/web
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies and Build
+        env:
+          # L'API est sur un autre domaine : l'URL est « cuite » dans le build.
+          VITE_API_URL: https://backforum.instapoint.site/api
+        run: |
+          npm ci
+          npx tsc -b
+          npx vite build
+          test -f dist/index.html && test -f dist/.htaccess
+
+      - name: Install SSHPASS
+        run: sudo apt update && sudo apt install sshpass -y
+
+      - name: Deploy to VPS
+        run: |
+          SUCCESS=0
+          for i in {1..3}; do
+            echo "Tentative de déploiement $i/3..."
+            if sshpass -e ssh -o StrictHostKeyChecking=no -o ConnectTimeout=60 -o ConnectionAttempts=5 -o ServerAliveInterval=15 ${{ secrets.APP_USER }}@${{ secrets.APP_HOST }} "mkdir -p $TARGET_DIR && rm -rf $TARGET_DIR/assets" && \
+               sshpass -e scp -o StrictHostKeyChecking=no -o ConnectTimeout=60 -r dist/. ${{ secrets.APP_USER }}@${{ secrets.APP_HOST }}:$TARGET_DIR/ && \
+               sshpass -e scp -o StrictHostKeyChecking=no -o ConnectTimeout=60 dist/.htaccess ${{ secrets.APP_USER }}@${{ secrets.APP_HOST }}:$TARGET_DIR/.htaccess; then
+              SUCCESS=1
+              echo "Déploiement réussi avec succès !"
+              break
+            else
+              echo "Tentative SSH $i échouée, nouvelle tentative dans 10s..."
+              sleep 10
+            fi
+          done
+          if [ $SUCCESS -ne 1 ]; then
+            echo "ERREUR : Échec du déploiement SSH après 3 tentatives !"
+            exit 1
+          fi
+
+      - name: Vérification après déploiement
+        run: |
+          for i in $(seq 1 6); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' https://forum.instapoint.site/ || true)
+            echo "GET / -> $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 5
+          done
+          echo "❌ Le site ne répond pas correctement après déploiement"; exit 1
