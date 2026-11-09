@@ -34,8 +34,8 @@ jobs:
           VITE_API_URL: https://backforum.instapoint.site/api
         run: |
           npm ci
+          npx vite build   # génère routeTree.gen.ts (non versionné) : doit passer AVANT tsc
           npx tsc -b
-          npx vite build
           test -f dist/index.html && test -f dist/.htaccess
 
       - name: Install SSHPASS
