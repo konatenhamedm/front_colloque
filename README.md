@@ -12,4 +12,4 @@ Contenu de la landing (intervenants, tarifs, calendrier…) : fourni par l'API (
 - `.github/workflows/ci.yml` : à chaque push sur `main` et chaque PR → `npm ci`, build Vite, typecheck.
 - `.github/workflows/deploy.yml` : push sur la branche **`production`** → build avec `VITE_API_URL=https://backforum.instapoint.site/api`, envoi par SCP vers `/var/www/forum.instapoint.site/web`, puis vérification HTTP.
 - Secrets GitHub requis (Settings → Secrets → Actions) : `APP_HOST`, `APP_USER`, `APP_PASS`.
-- Production : https://forum.instapoint.site — `public/.htaccess` gère le routage SPA, le cache et les en-têtes de sécurité.
+- Production : http://forum.instapoint.site (HTTPS dès que les certificats sont actifs : variable GitHub `USE_HTTPS=true`, puis relancer le déploiement) — `public/.htaccess` gère le routage SPA, le cache et les en-têtes de sécurité.

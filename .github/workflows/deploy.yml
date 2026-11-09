@@ -17,6 +17,9 @@ jobs:
     env:
       SSHPASS: ${{ secrets.APP_PASS }}
       TARGET_DIR: /var/www/forum.instapoint.site/web
+      # Certificats SSL pas encore actifs : HTTP par défaut. Quand ils le sont : variable de dépôt USE_HTTPS=true
+      # (Settings -> Secrets and variables -> Actions -> Variables) puis relancer le déploiement.
+      SCHEME: ${{ vars.USE_HTTPS == 'true' && 'https' || 'http' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -31,7 +34,7 @@ jobs:
       - name: Install dependencies and Build
         env:
           # L'API est sur un autre domaine : l'URL est « cuite » dans le build.
-          VITE_API_URL: https://backforum.instapoint.site/api
+          VITE_API_URL: ${{ vars.USE_HTTPS == 'true' && 'https' || 'http' }}://backforum.instapoint.site/api
         run: |
           npm ci
           npx vite build   # génère routeTree.gen.ts (non versionné) : doit passer AVANT tsc
@@ -66,12 +69,12 @@ jobs:
         run: |
           # On vérifie que c'est bien NOTRE application qui répond (et pas une page d'hébergeur / de parking DNS).
           for i in $(seq 1 6); do
-            body=$(curl -s -m 15 https://forum.instapoint.site/ || true)
+            body=$(curl -s -m 15 ${SCHEME}://forum.instapoint.site/ || true)
             if echo "$body" | grep -q 'id="root"' && echo "$body" | grep -q '/assets/'; then
-              echo "✅ L'application répond sur https://forum.instapoint.site"; exit 0
+              echo "✅ L'application répond sur ${SCHEME}://forum.instapoint.site"; exit 0
             fi
             echo "Tentative $i : l'application ne répond pas encore (DNS / vhost / SSL ?)"
             sleep 5
           done
-          echo "❌ https://forum.instapoint.site ne sert pas l'application. Vérifier : DNS -> IP du serveur (APP_HOST), vhost Apache, certificat SSL."
+          echo "❌ ${SCHEME}://forum.instapoint.site ne sert pas l'application. Vérifier : DNS -> IP du serveur (APP_HOST), vhost Apache, certificat SSL (si USE_HTTPS=true)."
           exit 1
