@@ -1,6 +1,6 @@
 import { Link, Outlet, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { Banknote, BadgeCheck, LayoutDashboard, ListChecks, LogOut, Menu, Moon, Settings, ShieldCheck, Sun, Users, X, type LucideIcon } from 'lucide-react'
+import { Banknote, BadgeCheck, Link2, LayoutDashboard, ListChecks, LogOut, Menu, Moon, Settings, ShieldCheck, Sun, Users, X, type LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import { api } from '@/lib/api'
 import { session, useSession } from '@/lib/auth'
@@ -17,6 +17,7 @@ const NAV: { title: string; items: Item[] }[] = [
     { label: 'Validations', to: '/admin/validations', icon: ShieldCheck, badge: 'attente' },
     { label: 'Liste des inscrits', to: '/admin/inscrits', icon: Users },
     { label: 'Attestations', to: '/admin/attestations', icon: BadgeCheck },
+    { label: 'Liens d\'inscription', to: '/admin/liens', icon: Link2 },
   ] },
   { title: 'Configuration', items: [{ label: 'Paramètres', to: '/admin/parametres', icon: Settings }] },
 ]

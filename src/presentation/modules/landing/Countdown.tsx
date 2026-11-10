@@ -61,11 +61,11 @@ export function Countdown({ dateDebut, dateFin, heures }: { dateDebut: string; d
   const r = decouper(debut - now)
   return (
     <div role="timer" aria-label={`Ouverture du forum dans ${r.jours} jours et ${r.heures} heures`}>
-      <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1">
+      <div className="mb-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
         <span className="text-xs font-extrabold uppercase tracking-[.18em] text-[#f0a35a]">Ouverture du forum dans</span>
         <span className="text-xs font-semibold text-white/60">{fmtDate(dateDebut, { weekday: 'long', day: 'numeric', month: 'long' })} à {String(hDebut).padStart(2, '0')}h{String(mDebut).padStart(2, '0')}</span>
       </div>
-      <div className="flex items-start gap-2 sm:gap-3">
+      <div className="flex items-start justify-center gap-2 sm:gap-3">
         <Tile value={r.jours} label={r.jours > 1 ? 'Jours' : 'Jour'} />
         <span aria-hidden className="pt-5 font-display text-3xl font-extrabold text-white/30 sm:pt-7 sm:text-4xl">:</span>
         <Tile value={r.heures} label="Heures" />

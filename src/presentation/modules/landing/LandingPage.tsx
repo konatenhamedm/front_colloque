@@ -44,29 +44,29 @@ export function LandingPage() {
           {isLoading || !c ? (
             <div className="space-y-4"><Skeleton className="h-6 w-40 !bg-white/10" /><Skeleton className="h-24 w-full max-w-3xl !bg-white/10" /></div>
           ) : (
-            <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="max-w-3xl">
+            <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="mx-auto max-w-4xl text-center">
               <span className="inline-flex flex-wrap items-center gap-x-2 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider ring-1 ring-white/20">
                 {c.titre}{c.sousTitre && <span className="text-[#f0a35a]">· {c.sousTitre}</span>}
               </span>
-              <h1 className="mt-5 font-display text-3xl font-extrabold leading-[1.15] tracking-tight sm:text-4xl lg:text-5xl">« {c.theme} »</h1>
-              <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm font-semibold">
+              <h1 className="mt-5 font-display text-3xl font-extrabold leading-[1.15] tracking-tight sm:text-4xl lg:text-5xl">{c.theme}</h1>
+              <div className="mt-7 flex flex-wrap justify-center gap-x-6 gap-y-3 text-sm font-semibold">
                 <span className="inline-flex items-center gap-2 capitalize"><CalendarDays className="size-5 text-[#f0932f]" />{dateLabel}</span>
                 {c.heures && <span className="inline-flex items-center gap-2"><Clock className="size-5 text-[#f0932f]" />{c.heures}</span>}
                 <span className="inline-flex items-center gap-2"><MapPin className="size-5 text-[#f0932f]" />{c.lieu}</span>
               </div>
               {c.cibles.length > 0 && (
-                <div className="mt-5 flex flex-wrap items-center gap-2 text-xs">
+                <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs">
                   <span className="inline-flex items-center gap-1.5 font-bold uppercase tracking-wide text-white/60"><GraduationCap className="size-4" />Pour</span>
                   {c.cibles.map(t => <span key={t} className="rounded-full bg-white/10 px-3 py-1 font-semibold ring-1 ring-white/15">{t}</span>)}
                 </div>
               )}
-              <div className="mt-9 flex flex-wrap items-center gap-3">
+              <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
                 <Link to="/inscription" className={buttonClass('accent', 'lg', 'shadow-lg shadow-orange-900/30')}>S'inscrire maintenant <ArrowRight className="size-5" /></Link>
                 <a href="#paiement" className={buttonClass('light', 'lg', '!bg-white/10 !text-white ring-1 ring-white/25 hover:!bg-white/15')}>
                   {fraisUniques !== null ? `Frais : ${fcfa(fraisUniques)}` : 'Voir les tarifs'}
                 </a>
               </div>
-              <div className="mt-10"><Countdown dateDebut={c.dateDebut} dateFin={c.dateFin} heures={c.heures} /></div>
+              <div className="mt-10 flex justify-center"><Countdown dateDebut={c.dateDebut} dateFin={c.dateFin} heures={c.heures} /></div>
             </motion.div>
           )}
         </div>
