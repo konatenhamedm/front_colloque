@@ -10,7 +10,7 @@ import { isAdmin, useSession } from '@/lib/auth'
 import { Logo } from '../components/ui/Logo'
 import { buttonClass } from '../components/ui/Button'
 
-const SECTIONS: [string, string][] = [['intervenants', 'Animateurs'], ['tarifs', 'Tarifs'], ['comite', 'Comité'], ['paiement', 'Paiement']]
+const SECTIONS: [string, string][] = [['intervenants', 'Animateurs'], ['interview', 'Témoignage'], ['tarifs', 'Tarifs'], ['comite', 'Comité'], ['paiement', 'Paiement']]
 
 /** Lien de section avec indicateur animé (la pastille glisse d'un lien à l'autre). */
 function NavLink({ id, label, active, group }: { id: string; label: string; active: boolean; group: string }) {

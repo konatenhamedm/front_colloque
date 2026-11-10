@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
-import { ArrowRight, LogIn, Play, Quote, CalendarDays, CheckCircle2, Clock, Gift, Utensils, GraduationCap, MapPin, Smartphone, Ticket, Users } from 'lucide-react'
+import { ArrowRight, LogIn, Quote, CalendarDays, CheckCircle2, Clock, Gift, Utensils, GraduationCap, MapPin, Smartphone, Ticket, Users } from 'lucide-react'
 import { api, assetUrl } from '@/lib/api'
 import type { Colloque } from '@/lib/types'
 import { fcfa, fmtDate, initials } from '@/lib/format'
@@ -10,43 +10,17 @@ import { buttonClass } from '../../components/ui/Button'
 import { PaymentChip } from '../../components/ui/PaymentLogo'
 import { Skeleton } from '../../components/ui/misc'
 import { Countdown } from './Countdown'
-import { useState } from 'react'
 
 /** Interview d'un doyen (YouTube Shorts, format vertical). */
 const INTERVIEW_VIDEO_ID = 'Z3CMiZOXd2c'
 
 function InterviewVideo() {
-  const [play, setPlay] = useState(false)
   return (
     <div className="relative mx-auto aspect-[9/16] w-full max-w-[320px] overflow-hidden rounded-[28px] border-4 border-white/15 bg-black shadow-2xl shadow-black/50 ring-1 ring-white/10">
-      {play ? (
-        <iframe className="absolute inset-0 size-full" title="Interview d'un doyen — FJCG 2026"
-          src={`https://www.youtube-nocookie.com/embed/${INTERVIEW_VIDEO_ID}?autoplay=1&rel=0&playsinline=1`}
-          allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" />
-      ) : (
-        <button type="button" onClick={() => setPlay(true)} aria-label="Lire l'interview"
-          className="group absolute inset-0 size-full cursor-pointer">
-          <img src={`https://i.ytimg.com/vi/${INTERVIEW_VIDEO_ID}/hq720.jpg`}
-            onError={e => { e.currentTarget.src = `https://i.ytimg.com/vi/${INTERVIEW_VIDEO_ID}/hqdefault.jpg` }}
-            alt="" loading="lazy" className="size-full object-cover transition duration-500 group-hover:scale-105" />
-          <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/30" />
-          <span className="absolute left-1/2 top-1/2 flex size-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-accent text-white shadow-xl transition group-hover:scale-110">
-            <Play className="ml-1 size-8 fill-current" />
-          </span>
-        </button>
-      )}
-    </div>
-  )
-}
-
-const reveal = { initial: { opacity: 0, y: 18 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: '-60px' }, transition: { duration: 0.45, ease: 'easeOut' as const } }
-
-function SectionTitle({ kicker, title, text }: { kicker: string; title: string; text?: string }) {
-  return (
-    <div className="mx-auto mb-10 max-w-2xl text-center">
-      <div className="text-xs font-extrabold uppercase tracking-[.18em] text-accent">{kicker}</div>
-      <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{title}</h2>
-      {text && <p className="mt-3 text-muted">{text}</p>}
+      <iframe className="absolute inset-0 size-full" title="Témoignage d'un doyen — FJCG 2026"
+        src={`https://www.youtube-nocookie.com/embed/${INTERVIEW_VIDEO_ID}?rel=0&playsinline=1`}
+        loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture; fullscreen" allowFullScreen
+        referrerPolicy="strict-origin-when-cross-origin" />
     </div>
   )
 }
@@ -162,7 +136,7 @@ export function LandingPage() {
         <div className="relative mx-auto grid max-w-5xl items-center gap-10 px-4 md:grid-cols-[1fr_auto] md:gap-16">
           <motion.div {...reveal} className="text-center md:text-left">
             <div className="text-xs font-extrabold uppercase tracking-[.18em] text-accent">Ils soutiennent le forum</div>
-            <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">L'interview d'un doyen</h2>
+            <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">Le témoignage d'un doyen</h2>
             <Quote className="mx-auto mt-6 size-8 text-accent md:mx-0" />
             <p className="mt-3 max-w-xl text-lg leading-relaxed text-white/80">
               Pourquoi la recherche des jeunes géographes compte, et pourquoi ce forum est une occasion à ne pas manquer. Découvrez le message d'un doyen en quelques secondes.
