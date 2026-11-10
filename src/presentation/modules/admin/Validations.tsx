@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Check, FileWarning, Inbox, X } from 'lucide-react'
+import { Check, FileWarning, Inbox, Trash2, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { api, ApiError } from '@/lib/api'
 import { fcfa, fmtDate } from '@/lib/format'
@@ -29,16 +29,19 @@ export function Validations() {
   const toast = useToast()
   const [selected, setSelected] = useState<number | null>(null)
   const [rejecting, setRejecting] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [motif, setMotif] = useState('')
 
   const { data, isLoading } = useQuery({ queryKey: ['queue'], queryFn: () => api.page<PaiementQueue>('/admin/paiements/en-attente', { limit: 50 }) })
   const items = data?.data ?? []
   const current = items.find(p => p.id === selected) ?? items[0]
 
-  const done = (msg: string) => { qc.invalidateQueries({ queryKey: ['queue'] }); qc.invalidateQueries({ queryKey: ['stats'] }); qc.invalidateQueries({ queryKey: ['inscrits'] }); setRejecting(false); setMotif(''); setSelected(null); toast.success(msg) }
+  const done = (msg: string) => { qc.invalidateQueries({ queryKey: ['queue'] }); qc.invalidateQueries({ queryKey: ['stats'] }); qc.invalidateQueries({ queryKey: ['inscrits'] }); setRejecting(false); setDeleting(false); setMotif(''); setSelected(null); toast.success(msg) }
   const fail = (e: unknown) => toast.error(e instanceof ApiError ? e.message : 'Action impossible.')
   const valider = useMutation({ mutationFn: (id: number) => api.post(`/admin/paiements/${id}/valider`), onSuccess: () => done('Paiement validé — le reçu a été envoyé par e-mail.'), onError: fail })
   const rejeter = useMutation({ mutationFn: (id: number) => api.post(`/admin/paiements/${id}/rejeter`, { motif }), onSuccess: () => done('Paiement rejeté, le participant a été notifié.'), onError: fail })
+
+  const supprimer = useMutation({ mutationFn: (id: number) => api.del(`/admin/inscriptions/${id}`), onSuccess: () => { qc.invalidateQueries({ queryKey: ['liens'] }); done('Inscription supprimée.') }, onError: fail })
 
   return (
     <>
@@ -75,7 +78,8 @@ export function Validations() {
                   <div className="sm:col-span-2"><dt className="text-xs text-muted">Référence déclarée</dt><dd className="font-mono text-sm font-bold">{current.reference ?? <span className="font-sans text-muted">Non renseignée (voir le reçu)</span>}</dd></div>
                 </dl>
                 {current.justificatif ? <Proof uuid={current.justificatif.uuid} /> : <p className="rounded-xl bg-warn-soft p-3 text-sm font-semibold text-warn">Aucun reçu joint : vérifiez la référence ci-dessus dans votre relevé {current.canalLabel}.</p>}
-                <div className="flex flex-wrap justify-end gap-2 border-t border-line pt-4">
+                <div className="flex flex-wrap items-center justify-end gap-2 border-t border-line pt-4">
+                  <Button variant="ghost" className="mr-auto text-bad hover:!bg-bad-soft" icon={<Trash2 className="size-4" />} onClick={() => setDeleting(true)}>Supprimer l'inscrit</Button>
                   <Button variant="secondary" icon={<X className="size-4" />} onClick={() => setRejecting(true)}>Rejeter</Button>
                   <Button variant="success" icon={<Check className="size-4" />} loading={valider.isPending} onClick={() => valider.mutate(current.id)}>Valider le paiement</Button>
                 </div>
@@ -84,6 +88,11 @@ export function Validations() {
           )}
         </div>
       )}
+
+      <Modal open={deleting} onClose={() => setDeleting(false)} title="Supprimer cet inscrit ?"
+        footer={<><Button variant="ghost" onClick={() => setDeleting(false)}>Annuler</Button><Button variant="danger" icon={<Trash2 className="size-4" />} loading={supprimer.isPending} onClick={() => current && supprimer.mutate(current.inscriptionId)}>Supprimer définitivement</Button></>}>
+        <p className="text-sm text-muted"><strong className="text-fg">{current?.participant}</strong> ({current?.participantEmail}) sera supprimé avec son compte, son paiement et son justificatif. Action <strong className="text-fg">irréversible</strong> ; l'adresse e-mail pourra être réutilisée pour une nouvelle inscription.</p>
+      </Modal>
 
       <Modal open={rejecting} onClose={() => setRejecting(false)} title="Rejeter le paiement"
         footer={<><Button variant="ghost" onClick={() => setRejecting(false)}>Annuler</Button><Button variant="danger" disabled={motif.trim().length < 3} loading={rejeter.isPending} onClick={() => current && rejeter.mutate(current.id)}>Confirmer le rejet</Button></>}>
