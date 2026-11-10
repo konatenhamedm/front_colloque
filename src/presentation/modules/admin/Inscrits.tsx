@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { CheckCheck, Download, Search, UserCheck, Users } from 'lucide-react'
+import { CheckCheck, Download, Search, Trash2, UserCheck, Users } from 'lucide-react'
 import { useState } from 'react'
 import { api, ApiError } from '@/lib/api'
 import { fcfa } from '@/lib/format'
@@ -20,6 +20,7 @@ export function Inscrits() {
   const [statut, setStatut] = useState('')
   const [page, setPage] = useState(1)
   const [confirmAll, setConfirmAll] = useState(false)
+  const [aSupprimer, setASupprimer] = useState<Inscription | null>(null)
 
   const { data, isLoading } = useQuery({ queryKey: ['inscrits', q, statut, page], queryFn: () => api.page<Inscription>('/admin/inscriptions', { q, statut, page, limit: 15 }), placeholderData: p => p })
 
@@ -29,6 +30,11 @@ export function Inscrits() {
     onSuccess: r => { refresh(); setConfirmAll(false); toast.success(`${r.valides.length} participation(s) validée(s)${r.ignores.length ? ` · ${r.ignores.length} ignorée(s)` : ''}.`) },
     onError: e => toast.error(e instanceof ApiError ? e.message : 'Action impossible.'),
   })
+  const supprimer = useMutation({
+    mutationFn: (id: number) => api.del(`/admin/inscriptions/${id}`),
+    onSuccess: () => { refresh(); qc.invalidateQueries({ queryKey: ['liens'] }); qc.invalidateQueries({ queryKey: ['queue'] }); toast.success(`Inscription de ${aSupprimer?.utilisateur.nomComplet ?? 'l\'inscrit'} supprimée.`); setASupprimer(null) },
+    onError: e => toast.error(e instanceof ApiError ? e.message : 'Suppression impossible.'),
+  })
   const exp = (fmt: 'xlsx' | 'csv') => api.download(`/admin/exports/emargement?format=${fmt}`, `emargement.${fmt}`).catch(() => toast.error('Export impossible.'))
 
   const cols: Column<Inscription>[] = [
@@ -37,8 +43,12 @@ export function Inscrits() {
     { key: 'c', header: 'Catégorie', cell: r => <div><div className="text-xs font-semibold">{r.categorie.libelle}</div><div className="text-[11px] text-muted">{fcfa(r.montantTotal)}{r.repas && ' · avec repas'}</div></div> },
     { key: 's', header: 'Statut', cell: r => <StatutBadge statut={r.statut} /> },
     { key: 'pr', header: 'Présence', cell: r => r.presence ? <Badge tone="ok" dot>Présent</Badge> : <span className="text-subtle">—</span> },
-    { key: 'a', header: '', className: 'text-right', cell: r => r.statut === 'PAYMENT_VALIDATED'
-      ? <Button size="sm" variant="secondary" icon={<UserCheck className="size-3.5" />} loading={valider.isPending && valider.variables?.[0] === r.id} onClick={() => valider.mutate([r.id])}>Valider la présence</Button> : null },
+    { key: 'a', header: '', className: 'text-right', cell: r => (
+        <div className="flex items-center justify-end gap-2">
+          {r.statut === 'PAYMENT_VALIDATED' && <Button size="sm" variant="secondary" icon={<UserCheck className="size-3.5" />} loading={valider.isPending && valider.variables?.[0] === r.id} onClick={() => valider.mutate([r.id])}>Valider la présence</Button>}
+          <Button size="sm" variant="ghost" className="!px-2 text-bad hover:!bg-bad-soft" aria-label={`Supprimer ${r.utilisateur.nomComplet}`} title="Supprimer cet inscrit" onClick={() => setASupprimer(r)}><Trash2 className="size-4" /></Button>
+        </div>
+      ) },
   ]
 
   return (
@@ -60,6 +70,11 @@ export function Inscrits() {
         <DataTable columns={cols} rows={data?.data} loading={isLoading && !data} meta={data?.meta} onPage={setPage} rowKey={r => r.id}
           empty={<EmptyState icon={<Users className="size-8" />} title="Aucun inscrit" text="Aucun résultat pour ces critères." />} />
       </Card>
+
+      <Modal open={!!aSupprimer} onClose={() => setASupprimer(null)} title="Supprimer cet inscrit ?"
+        footer={<><Button variant="ghost" onClick={() => setASupprimer(null)}>Annuler</Button><Button variant="danger" loading={supprimer.isPending} icon={<Trash2 className="size-4" />} onClick={() => aSupprimer && supprimer.mutate(aSupprimer.id)}>Supprimer définitivement</Button></>}>
+        <p className="text-sm text-muted"><strong className="text-fg">{aSupprimer?.utilisateur.nomComplet}</strong> ({aSupprimer?.utilisateur.email}) sera supprimé avec son compte, ses paiements, ses justificatifs et son attestation éventuelle. Cette action est <strong className="text-fg">irréversible</strong> ; l'adresse e-mail pourra ensuite être réutilisée pour une nouvelle inscription.</p>
+      </Modal>
 
       <Modal open={confirmAll} onClose={() => setConfirmAll(false)} title="Valider la participation de tous ?"
         footer={<><Button variant="ghost" onClick={() => setConfirmAll(false)}>Annuler</Button><Button loading={valider.isPending} onClick={() => valider.mutate(null)}>Confirmer</Button></>}>
