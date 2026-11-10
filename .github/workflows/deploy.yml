@@ -17,9 +17,9 @@ jobs:
     env:
       SSHPASS: ${{ secrets.APP_PASS }}
       TARGET_DIR: /var/www/forum.instapoint.site/web
-      # Certificats SSL pas encore actifs : HTTP par défaut. Quand ils le sont : variable de dépôt USE_HTTPS=true
+      # Certificats SSL actifs : HTTPS par défaut. Pour repasser temporairement en HTTP : variable de dépôt USE_HTTPS=false
       # (Settings -> Secrets and variables -> Actions -> Variables) puis relancer le déploiement.
-      SCHEME: ${{ vars.USE_HTTPS == 'true' && 'https' || 'http' }}
+      SCHEME: ${{ vars.USE_HTTPS == 'false' && 'http' || 'https' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +34,7 @@ jobs:
       - name: Install dependencies and Build
         env:
           # L'API est sur un autre domaine : l'URL est « cuite » dans le build.
-          VITE_API_URL: ${{ vars.USE_HTTPS == 'true' && 'https' || 'http' }}://backforum.instapoint.site/api
+          VITE_API_URL: ${{ vars.USE_HTTPS == 'false' && 'http' || 'https' }}://backforum.instapoint.site/api
         run: |
           npm ci
           npx vite build   # génère routeTree.gen.ts (non versionné) : doit passer AVANT tsc
