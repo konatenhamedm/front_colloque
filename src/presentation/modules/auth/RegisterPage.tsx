@@ -52,7 +52,7 @@ function FormStep({ token }: { token: string }) {
   const { data: c } = useQuery({ queryKey: ['colloque'], queryFn: () => api.get<Colloque>('/public/colloque') })
   const check = useQuery({ queryKey: ['inscription-token', token], queryFn: () => api.get<{ email: string }>('/auth/inscription/verifier', { token }), retry: false })
 
-  const [f, setF] = useState({ nom: '', prenom: '', telephone: '', institution: '', pays: DEFAULT_COUNTRY, categorieId: '', typeParticipation: 'AUDITEUR', canal: '', reference: '', password: '', password2: '' })
+  const [f, setF] = useState({ nom: '', prenom: '', telephone: '', institution: '', pays: DEFAULT_COUNTRY, categorieId: '', typeParticipation: 'AUDITEUR', canal: '', reference: '', repas: false, password: '', password2: '' })
   const [file, setFile] = useState<File | null>(null)
   const [localError, setLocalError] = useState<string | null>(null)
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF(s => ({ ...s, [k]: e.target.value }))
@@ -61,7 +61,7 @@ function FormStep({ token }: { token: string }) {
     mutationFn: async () => {
       const fd = new FormData()
       fd.append('token', token)
-      Object.entries(f).forEach(([k, v]) => k !== 'password2' && fd.append(k, v))
+      Object.entries(f).forEach(([k, v]) => k !== 'password2' && fd.append(k, String(v)))
       if (file) fd.append('justificatif', file)
       return api.post<{ token: string }>('/auth/inscription', fd)
     },
@@ -121,8 +121,14 @@ function FormStep({ token }: { token: string }) {
 
         <div className="rounded-xl border border-accent/30 bg-accent-soft p-4 text-sm">
           <div className="flex items-center gap-2 font-extrabold text-accent"><Wallet className="size-5" />Effectuez d'abord votre paiement</div>
+          {!!c?.prixRepas && (
+            <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-xl bg-surface p-3 ring-1 ring-line has-[:checked]:ring-2 has-[:checked]:ring-brand">
+              <input type="checkbox" className="mt-0.5 size-4 accent-[var(--brand)]" checked={f.repas} onChange={e => setF(s => ({ ...s, repas: e.target.checked }))} />
+              <span><strong>Je souhaite prendre le repas</strong> <span className="text-muted">(facultatif, +{fcfa(c.prixRepas)})</span></span>
+            </label>
+          )}
           {categorie
-            ? <p className="mt-2">Montant à payer : <strong className="text-base">{fcfa(categorie.montant)}</strong></p>
+            ? <p className="mt-2">Montant à payer : <strong className="text-base">{fcfa(categorie.montant + (f.repas ? c?.prixRepas ?? 0 : 0))}</strong>{f.repas && !!c?.prixRepas && <span className="text-muted"> ({fcfa(categorie.montant)} + repas {fcfa(c.prixRepas)})</span>}</p>
             : <p className="mt-2 text-muted">Choisissez votre catégorie ci-dessus pour voir le montant à payer.</p>}
           <p className="mt-2 text-muted">Envoyez ce montant à l'un des numéros suivants, selon le moyen de paiement choisi :</p>
           <ul className="mt-3 space-y-2">

@@ -9,7 +9,7 @@ export interface Personne { nom: string; telephone: string; email: string }
 export interface MembreComite { role: string; nom: string; details: string }
 export interface Colloque {
   sigle: string
-  titre: string; sousTitre: string | null; theme: string; dateDebut: string; dateFin: string; heures: string | null; lieu: string; modalite: string | null
+  titre: string; sousTitre: string | null; theme: string; dateDebut: string; dateFin: string; heures: string | null; prixRepas: number | null; lieu: string; modalite: string | null
   cibles: string[]
   calendrier: { ordre: number; libelle: string; date: string }[]
   avantages: string[]
@@ -37,7 +37,7 @@ export interface Paiement {
 export interface Inscription {
   id: number; uuid: string; utilisateur: User; categorie: Categorie; typeParticipation: 'AUDITEUR' | 'COMMUNICANT'
   institution: string; pays: string | null; statut: Statut; statutLabel: string; motifRejet: string | null
-  presence: boolean; paiements: Paiement[]; dernierPaiement: Paiement | null; createdAt: string
+  presence: boolean; repas: boolean; montantTotal: number; paiements: Paiement[]; dernierPaiement: Paiement | null; createdAt: string
 }
 export interface PaiementQueue extends Paiement {
   inscriptionId: number; participant: string; participantEmail: string; categorieLibelle: string; inscriptionStatut: Statut

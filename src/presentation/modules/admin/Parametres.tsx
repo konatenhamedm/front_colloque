@@ -53,11 +53,11 @@ function Rows<T extends object>({ rows, onChange, blank, addLabel, children }: {
 
 function General({ c }: { c: Colloque }) {
   const save = useSave()
-  const [f, setF] = useState({ titre: c.titre, sousTitre: c.sousTitre ?? '', theme: c.theme, dateDebut: c.dateDebut, dateFin: c.dateFin, heures: c.heures ?? '', lieu: c.lieu, dateLimitePaiement: c.dateLimitePaiement, cibles: text(c.cibles), avantages: text(c.avantages) })
+  const [f, setF] = useState({ titre: c.titre, sousTitre: c.sousTitre ?? '', theme: c.theme, dateDebut: c.dateDebut, dateFin: c.dateFin, heures: c.heures ?? '', prixRepas: c.prixRepas === null ? '' : String(c.prixRepas), lieu: c.lieu, dateLimitePaiement: c.dateLimitePaiement, cibles: text(c.cibles), avantages: text(c.avantages) })
   const [cal, setCal] = useState(c.calendrier.map(x => ({ libelle: x.libelle, date: x.date })))
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF(s => ({ ...s, [k]: e.target.value }))
   return (
-    <form onSubmit={e => { e.preventDefault(); save.mutate({ ...f, cibles: lines(f.cibles), avantages: lines(f.avantages), calendrier: cal }) }}>
+    <form onSubmit={e => { e.preventDefault(); save.mutate({ ...f, prixRepas: f.prixRepas === '' ? null : Number(f.prixRepas), cibles: lines(f.cibles), avantages: lines(f.avantages), calendrier: cal }) }}>
       <div className="grid gap-4 p-5 sm:grid-cols-2">
         <Field label="Nom de l'événement" required><Input required value={f.titre} onChange={set('titre')} /></Field>
         <Field label="Édition / sous-titre" hint="Ex. : 3ᵉ édition"><Input value={f.sousTitre} onChange={set('sousTitre')} /></Field>
@@ -66,6 +66,7 @@ function General({ c }: { c: Colloque }) {
         <Field label="Date de fin" required hint="Identique à la date de début pour un événement d'un jour"><Input type="date" required value={f.dateFin} onChange={set('dateFin')} /></Field>
         <Field label="Horaires" hint="Ex. : 08h00 – 16h00"><Input value={f.heures} onChange={set('heures')} /></Field>
         <Field label="Date limite de paiement" required><Input type="date" required value={f.dateLimitePaiement} onChange={set('dateLimitePaiement')} /></Field>
+        <Field label="Prix du repas (FCFA)" hint="Repas facultatif ajouté au montant. Laisser vide ou 0 : pas d'option repas"><Input type="number" min={0} step={500} value={f.prixRepas} onChange={set('prixRepas')} /></Field>
         <div className="sm:col-span-2"><Field label="Lieu" required><Input required value={f.lieu} onChange={set('lieu')} /></Field></div>
         <Field label="Publics ciblés" hint="Un par ligne"><Textarea value={f.cibles} onChange={set('cibles')} /></Field>
         <Field label="Les frais donnent droit à…" hint="Un par ligne (ex. : Déjeuner)"><Textarea value={f.avantages} onChange={set('avantages')} /></Field>

@@ -34,7 +34,7 @@ export function Inscrits() {
   const cols: Column<Inscription>[] = [
     { key: 'p', header: 'Participant', cell: r => <div className="flex items-center gap-3"><Avatar name={r.utilisateur.nomComplet} className="size-8" /><div className="min-w-0"><div className="truncate font-bold">{r.utilisateur.nomComplet}</div><div className="truncate text-xs text-muted">{r.utilisateur.email}</div></div></div> },
     { key: 'i', header: 'Institution', cell: r => <span className="text-muted">{r.institution}</span> },
-    { key: 'c', header: 'Catégorie', cell: r => <div><div className="text-xs font-semibold">{r.categorie.libelle}</div><div className="text-[11px] text-muted">{fcfa(r.categorie.montant)}</div></div> },
+    { key: 'c', header: 'Catégorie', cell: r => <div><div className="text-xs font-semibold">{r.categorie.libelle}</div><div className="text-[11px] text-muted">{fcfa(r.montantTotal)}{r.repas && ' · avec repas'}</div></div> },
     { key: 's', header: 'Statut', cell: r => <StatutBadge statut={r.statut} /> },
     { key: 'pr', header: 'Présence', cell: r => r.presence ? <Badge tone="ok" dot>Présent</Badge> : <span className="text-subtle">—</span> },
     { key: 'a', header: '', className: 'text-right', cell: r => r.statut === 'PAYMENT_VALIDATED'

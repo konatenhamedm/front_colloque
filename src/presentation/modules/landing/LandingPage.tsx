@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
-import { ArrowRight, CalendarDays, CheckCircle2, Clock, Gift, GraduationCap, MapPin, Smartphone, Ticket, Users } from 'lucide-react'
+import { ArrowRight, CalendarDays, CheckCircle2, Clock, Gift, Utensils, GraduationCap, MapPin, Smartphone, Ticket, Users } from 'lucide-react'
 import { api, assetUrl } from '@/lib/api'
 import type { Colloque } from '@/lib/types'
 import { fcfa, fmtDate, initials } from '@/lib/format'
@@ -129,6 +129,12 @@ export function LandingPage() {
           <div className="mx-auto max-w-6xl px-4">
             <SectionTitle kicker="Frais de participation" title={fraisUniques !== null ? fcfa(fraisUniques) : 'Choisissez votre catégorie'}
               text={`Payables avant le ${fmtDate(c.dateLimitePaiement)}. Les frais ne sont pas remboursables.`} />
+            {!!c.prixRepas && (
+              <div className="mx-auto mb-8 flex max-w-3xl flex-wrap items-center justify-center gap-x-3 gap-y-1 rounded-2xl border border-accent/30 bg-accent-soft px-5 py-3 text-center text-sm font-semibold">
+                <Utensils className="size-5 text-accent" />
+                <span>Repas en option : <strong>{fcfa(c.prixRepas)}</strong> pour celles et ceux qui le désirent (à cocher à l'inscription).</span>
+              </div>
+            )}
             {fraisUniques === null && (
               <div className="mx-auto mb-8 grid max-w-4xl gap-4 sm:grid-cols-3">
                 {c.categories.map((cat, i) => (
