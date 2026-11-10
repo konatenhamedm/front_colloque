@@ -1,15 +1,16 @@
 import { Check } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
 interface Brand { bg: string; fg: string; glyph: ReactNode }
 
-/** Pastille aux couleurs de chaque opérateur. Pour utiliser un logo officiel : déposer public/payments/<CODE>.svg (ex. WAVE.svg), il remplace automatiquement la pastille. */
+/** Logos OFFICIELS (public/payments/). Les moyens de paiement absents de cette liste utilisent la pastille générique ci-dessous. */
+const OFFICIAL: Record<string, string> = { ORANGE_MONEY: '/payments/ORANGE_MONEY.svg', WAVE: '/payments/WAVE.png' }
+
+/** Pastille aux couleurs de chaque opérateur (générique : pas de logo officiel disponible pour celui-ci). Pour ajouter un logo officiel : déposer le fichier dans public/payments/ puis l'inscrire dans OFFICIAL. */
 const mono = (t: string, size = 15) => <span style={{ fontSize: size, fontWeight: 900, letterSpacing: -0.5, lineHeight: 1 }}>{t}</span>
 
 const BRANDS: Record<string, Brand> = {
-  WAVE: { bg: '#1DC8FF', fg: '#fff', glyph: <svg viewBox="0 0 32 32" className="size-7" fill="none" stroke="#fff" strokeWidth="3.2" strokeLinecap="round"><path d="M3 11c3.5-4 7-4 10.5 0s7 4 10.5 0 3.5-1 5-1" /><path d="M3 21c3.5-4 7-4 10.5 0s7 4 10.5 0 3.5-1 5-1" /></svg> },
-  ORANGE_MONEY: { bg: '#FF7900', fg: '#000', glyph: <span className="flex flex-col items-center leading-none text-black">{mono('orange', 11)}<span style={{ fontSize: 9, fontWeight: 700 }}>money</span></span> },
   MOOV_MONEY: { bg: '#0B6FB8', fg: '#fff', glyph: <span className="flex flex-col items-center leading-none text-white">{mono('moov', 14)}<span style={{ fontSize: 9, fontWeight: 700, color: '#FFB347' }}>money</span></span> },
   MTN_MONEY: { bg: '#FFCC00', fg: '#000', glyph: <span className="text-black">{mono('MTN', 16)}</span> },
   WESTERN_UNION: { bg: '#FFDD00', fg: '#000', glyph: <span className="flex flex-col items-center leading-none text-black">{mono('WU', 17)}<span style={{ fontSize: 7, fontWeight: 800 }}>WESTERN UNION</span></span> },
@@ -18,14 +19,20 @@ const BRANDS: Record<string, Brand> = {
   VIREMENT: { bg: '#1b2a6b', fg: '#fff', glyph: <span className="text-white">{mono('🏦', 18)}</span> },
 }
 
-/** Tuile logo (carré arrondi). */
+/** Logo d'un moyen de paiement : logo officiel (sur fond blanc, largeur automatique) ou, à défaut, pastille générique. */
 export function PaymentLogo({ code, className }: { code: string; className?: string }) {
-  const [official, setOfficial] = useState(true)
+  const src = OFFICIAL[code]
+  if (src) {
+    return (
+      <span className={cn('inline-flex h-11 shrink-0 items-center justify-center rounded-xl bg-white px-2 shadow-sm ring-1 ring-black/10', className, 'w-auto')} aria-hidden>
+        <img src={src} alt="" className="h-full max-h-[85%] w-auto max-w-[104px] object-contain" />
+      </span>
+    )
+  }
   const b = BRANDS[code] ?? { bg: '#5a6788', fg: '#fff', glyph: mono(code.slice(0, 2)) }
   return (
     <span className={cn('relative inline-flex h-11 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl shadow-sm ring-1 ring-black/5', className)} style={{ background: b.bg }} aria-hidden>
-      {official && <img src={`/payments/${code}.svg`} alt="" className="absolute inset-0 size-full bg-white object-contain p-1" onError={() => setOfficial(false)} />}
-      {!official && b.glyph}
+      {b.glyph}
     </span>
   )
 }
