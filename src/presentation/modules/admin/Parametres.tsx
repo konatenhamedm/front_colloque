@@ -53,11 +53,10 @@ function Rows<T extends object>({ rows, onChange, blank, addLabel, children }: {
 
 function General({ c }: { c: Colloque }) {
   const save = useSave()
-  const [f, setF] = useState({ titre: c.titre, sousTitre: c.sousTitre ?? '', theme: c.theme, dateDebut: c.dateDebut, dateFin: c.dateFin, heures: c.heures ?? '', prixRepas: c.prixRepas === null ? '' : String(c.prixRepas), lieu: c.lieu, dateLimitePaiement: c.dateLimitePaiement, cibles: text(c.cibles), avantages: text(c.avantages) })
-  const [cal, setCal] = useState(c.calendrier.map(x => ({ libelle: x.libelle, date: x.date })))
+  const [f, setF] = useState({ titre: c.titre, sousTitre: c.sousTitre ?? '', theme: c.theme, dateDebut: c.dateDebut, dateFin: c.dateFin, heures: c.heures ?? '', slogan: c.slogan ?? '', prixRepas: c.prixRepas === null ? '' : String(c.prixRepas), lieu: c.lieu, dateLimitePaiement: c.dateLimitePaiement, cibles: text(c.cibles), avantages: text(c.avantages) })
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF(s => ({ ...s, [k]: e.target.value }))
   return (
-    <form onSubmit={e => { e.preventDefault(); save.mutate({ ...f, prixRepas: f.prixRepas === '' ? null : Number(f.prixRepas), cibles: lines(f.cibles), avantages: lines(f.avantages), calendrier: cal }) }}>
+    <form onSubmit={e => { e.preventDefault(); save.mutate({ ...f, prixRepas: f.prixRepas === '' ? null : Number(f.prixRepas), cibles: lines(f.cibles), avantages: lines(f.avantages) }) }}>
       <div className="grid gap-4 p-5 sm:grid-cols-2">
         <Field label="Nom de l'événement" required><Input required value={f.titre} onChange={set('titre')} /></Field>
         <Field label="Édition / sous-titre" hint="Ex. : 3ᵉ édition"><Input value={f.sousTitre} onChange={set('sousTitre')} /></Field>
@@ -66,16 +65,11 @@ function General({ c }: { c: Colloque }) {
         <Field label="Date de fin" required hint="Identique à la date de début pour un événement d'un jour"><Input type="date" required value={f.dateFin} onChange={set('dateFin')} /></Field>
         <Field label="Horaires" hint="Ex. : 08h00 – 16h00"><Input value={f.heures} onChange={set('heures')} /></Field>
         <Field label="Date limite de paiement" required><Input type="date" required value={f.dateLimitePaiement} onChange={set('dateLimitePaiement')} /></Field>
-        <Field label="Prix du repas (FCFA)" hint="Repas facultatif ajouté au montant. Laisser vide ou 0 : pas d'option repas"><Input type="number" min={0} step={500} value={f.prixRepas} onChange={set('prixRepas')} /></Field>
+        <Field label="Prix du déjeuner (FCFA)" hint="Déjeuner facultatif ajouté au montant. Laisser vide ou 0 : pas d'option déjeuner"><Input type="number" min={0} step={500} value={f.prixRepas} onChange={set('prixRepas')} /></Field>
         <div className="sm:col-span-2"><Field label="Lieu" required><Input required value={f.lieu} onChange={set('lieu')} /></Field></div>
         <Field label="Publics ciblés" hint="Un par ligne"><Textarea value={f.cibles} onChange={set('cibles')} /></Field>
-        <Field label="Les frais donnent droit à…" hint="Un par ligne (ex. : Déjeuner)"><Textarea value={f.avantages} onChange={set('avantages')} /></Field>
-        <div className="sm:col-span-2">
-          <span className="mb-2 block text-xs font-bold">Dates à retenir (page d'accueil)</span>
-          <Rows rows={cal} onChange={setCal} blank={{ libelle: '', date: '' }} addLabel="Ajouter une date">
-            {(r, set2) => <><Input placeholder="Intitulé" value={r.libelle} onChange={e => set2({ libelle: e.target.value })} /><Input placeholder="Date (ex. 25 novembre 2026)" value={r.date} onChange={e => set2({ date: e.target.value })} /></>}
-          </Rows>
-        </div>
+        <Field label="Avantages de participation" hint="Un par ligne"><Textarea value={f.avantages} onChange={set('avantages')} /></Field>
+        <div className="sm:col-span-2"><Field label="Slogan" hint="Affiché en bas de la page d'accueil et sur le reçu"><Input value={f.slogan} onChange={set('slogan')} /></Field></div>
       </div>
       <div className="px-5"><SaveBar pending={save.isPending} error={errorOf(save.error)} /></div>
     </form>

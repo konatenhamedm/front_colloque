@@ -124,11 +124,11 @@ function FormStep({ token }: { token: string }) {
           {!!c?.prixRepas && (
             <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-xl bg-surface p-3 ring-1 ring-line has-[:checked]:ring-2 has-[:checked]:ring-brand">
               <input type="checkbox" className="mt-0.5 size-4 accent-[var(--brand)]" checked={f.repas} onChange={e => setF(s => ({ ...s, repas: e.target.checked }))} />
-              <span><strong>Je souhaite prendre le repas</strong> <span className="text-muted">(facultatif, +{fcfa(c.prixRepas)})</span></span>
+              <span><strong>Je souhaite prendre le déjeuner</strong> <span className="text-muted">(facultatif, +{fcfa(c.prixRepas)})</span></span>
             </label>
           )}
           {categorie
-            ? <p className="mt-2">Montant à payer : <strong className="text-base">{fcfa(categorie.montant + (f.repas ? c?.prixRepas ?? 0 : 0))}</strong>{f.repas && !!c?.prixRepas && <span className="text-muted"> ({fcfa(categorie.montant)} + repas {fcfa(c.prixRepas)})</span>}</p>
+            ? <p className="mt-2">Montant à payer : <strong className="text-base">{fcfa(categorie.montant + (f.repas ? c?.prixRepas ?? 0 : 0))}</strong>{f.repas && !!c?.prixRepas && <span className="text-muted"> ({fcfa(categorie.montant)} + déjeuner {fcfa(c.prixRepas)})</span>}</p>
             : <p className="mt-2 text-muted">Choisissez votre catégorie ci-dessus pour voir le montant à payer.</p>}
           <p className="mt-2 text-muted">Envoyez ce montant à l'un des numéros suivants, selon le moyen de paiement choisi :</p>
           <ul className="mt-3 space-y-2">

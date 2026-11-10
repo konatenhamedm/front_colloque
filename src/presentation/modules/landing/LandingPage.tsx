@@ -136,7 +136,7 @@ export function LandingPage() {
             {!!c.prixRepas && (
               <div className="mx-auto mb-8 flex max-w-3xl flex-wrap items-center justify-center gap-x-3 gap-y-1 rounded-2xl border border-accent/30 bg-accent-soft px-5 py-3 text-center text-sm font-semibold">
                 <Utensils className="size-5 text-accent" />
-                <span>Repas en option : <strong>{fcfa(c.prixRepas)}</strong> pour celles et ceux qui le désirent (à cocher à l'inscription).</span>
+                <span>Déjeuner en option : <strong>{fcfa(c.prixRepas)}</strong> pour celles et ceux qui le désirent (à cocher à l'inscription).</span>
               </div>
             )}
             {fraisUniques === null && (
@@ -158,29 +158,13 @@ export function LandingPage() {
               )}
               {c.avantages.length > 0 && (
                 <div className="rounded-2xl border border-line bg-surface-2/50 p-6">
-                  <div className="flex items-center gap-2 text-sm font-extrabold"><Gift className="size-5 text-accent" />Les frais donnent droit à</div>
+                  <div className="flex items-center gap-2 text-sm font-extrabold"><Gift className="size-5 text-accent" />Avantages de participation</div>
                   <ul className="mt-3 space-y-2 text-sm">{c.avantages.map(a => <li key={a} className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 size-4 shrink-0 text-ok" />{a}</li>)}</ul>
                 </div>
               )}
             </div>
             <div className="mt-8 text-center"><Link to="/inscription" className={buttonClass('primary', 'lg')}>S'inscrire <ArrowRight className="size-5" /></Link></div>
           </div>
-        </section>
-      )}
-
-      {/* ───── Programme ───── */}
-      {c && c.calendrier.length > 0 && (
-        <section id="programme" className="mx-auto max-w-3xl scroll-mt-28 px-4 py-20 md:scroll-mt-20">
-          <SectionTitle kicker="Planning" title="Dates à retenir" />
-          <ol className="relative space-y-6 border-l-2 border-line pl-8">
-            {c.calendrier.map(s => (
-              <motion.li key={s.ordre} {...reveal} className="relative">
-                <span className="absolute -left-[calc(2rem+9px)] top-0.5 flex size-4 items-center justify-center rounded-full border-2 border-accent bg-surface" />
-                <div className="text-xs font-extrabold uppercase tracking-wide text-accent">{s.date}</div>
-                <div className="mt-0.5 font-semibold">{s.libelle}</div>
-              </motion.li>
-            ))}
-          </ol>
         </section>
       )}
 
@@ -209,7 +193,7 @@ export function LandingPage() {
             <div className="grid items-start gap-8 lg:grid-cols-2">
               <div>
                 <h2 className="font-display text-3xl font-extrabold tracking-tight">Prêt à vous inscrire ?</h2>
-                <p className="mt-3 text-white/75">Payez d'abord vos frais{fraisUniques !== null && <> ({fcfa(fraisUniques)})</>} avant le {fmtDate(c.dateLimitePaiement)}, puis inscrivez-vous avec la référence de la transaction ou le reçu.</p>
+                <p className="mt-3 text-white/75">Payez d'abord vos frais{fraisUniques !== null && <> ({fcfa(fraisUniques)}{!!c.prixRepas && <>, + {fcfa(c.prixRepas)} si vous prenez le déjeuner</>})</>} avant le {fmtDate(c.dateLimitePaiement)}, puis inscrivez-vous avec la référence de la transaction ou le reçu.</p>
                 <Link to="/inscription" className={buttonClass('accent', 'lg', 'mt-6')}>Commencer mon inscription <ArrowRight className="size-5" /></Link>
               </div>
               <div className="space-y-3">
@@ -220,10 +204,26 @@ export function LandingPage() {
                     <ul className="mt-3 flex flex-wrap gap-2">{p.numeros.map(n => <li key={n} className="rounded-lg bg-white/10 px-3 py-1.5 font-mono text-sm font-bold">{n}</li>)}</ul>
                   </div>
                 ))}
+                <div className="rounded-2xl bg-white/5 p-4 text-sm ring-1 ring-white/15">
+                  <div className="text-xs font-extrabold uppercase tracking-wider text-[#f0a35a]">Montant à payer</div>
+                  <dl className="mt-2 space-y-1.5">
+                    {fraisUniques !== null && <div className="flex justify-between gap-4"><dt className="text-white/75">Frais de participation</dt><dd className="font-bold tabular-nums">{fcfa(fraisUniques)}</dd></div>}
+                    {!!c.prixRepas && <div className="flex justify-between gap-4"><dt className="text-white/75">Déjeuner (facultatif)</dt><dd className="font-bold tabular-nums">+ {fcfa(c.prixRepas)}</dd></div>}
+                    {fraisUniques !== null && !!c.prixRepas && <div className="flex justify-between gap-4 border-t border-white/15 pt-2"><dt className="font-bold">Total avec déjeuner</dt><dd className="font-extrabold tabular-nums text-[#f0a35a]">{fcfa(fraisUniques + c.prixRepas)}</dd></div>}
+                  </dl>
+                </div>
                 <p className="text-xs text-white/70">Frais non remboursables.</p>
               </div>
             </div>
           </div>
+        </section>
+      )}
+
+      {/* ───── Slogan ───── */}
+      {c?.slogan && (
+        <section aria-label="Slogan" className="px-4 pb-16 pt-2 text-center">
+          <p className="mx-auto max-w-3xl font-display text-2xl font-extrabold leading-snug tracking-tight text-brand sm:text-3xl">{c.slogan}</p>
+          <div aria-hidden className="mx-auto mt-5 flex h-1.5 w-40 overflow-hidden rounded-full"><i className="w-2/5 bg-[#2f55c4]" /><i className="w-[30%] bg-[#d9730d]" /><i className="w-[30%] bg-[#1f8a3b]" /></div>
         </section>
       )}
 

@@ -9,7 +9,7 @@ export interface Personne { nom: string; telephone: string; email: string }
 export interface MembreComite { role: string; nom: string; details: string }
 export interface Colloque {
   sigle: string
-  titre: string; sousTitre: string | null; theme: string; dateDebut: string; dateFin: string; heures: string | null; prixRepas: number | null; lieu: string; modalite: string | null
+  titre: string; sousTitre: string | null; theme: string; dateDebut: string; dateFin: string; heures: string | null; prixRepas: number | null; slogan: string | null; lieu: string; modalite: string | null
   cibles: string[]
   calendrier: { ordre: number; libelle: string; date: string }[]
   avantages: string[]
