@@ -16,7 +16,7 @@ const INTERVIEW_VIDEO_ID = 'Z3CMiZOXd2c'
 
 function InterviewVideo() {
   return (
-    <div className="relative mx-auto aspect-[9/16] w-full max-w-[320px] overflow-hidden rounded-[28px] border-4 border-white/15 bg-black shadow-2xl shadow-black/50 ring-1 ring-white/10">
+    <div className="relative mx-auto aspect-[9/16] w-[min(80vw,300px)] overflow-hidden rounded-[28px] border-4 border-white/15 bg-black shadow-2xl shadow-black/50 ring-1 ring-white/10">
       <iframe className="absolute inset-0 size-full" title="Témoignage d'un doyen — FJCG 2026"
         src={`https://www.youtube-nocookie.com/embed/${INTERVIEW_VIDEO_ID}?rel=0&playsinline=1`}
         loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture; fullscreen" allowFullScreen
@@ -155,7 +155,7 @@ export function LandingPage() {
             </p>
             <Link to="/inscription" className={buttonClass('accent', 'lg', 'mt-8 shadow-lg shadow-orange-900/30')}>S'inscrire maintenant <ArrowRight className="size-5" /></Link>
           </motion.div>
-          <motion.div {...reveal} className="w-full"><InterviewVideo /></motion.div>
+          <motion.div {...reveal} className="mx-auto"><InterviewVideo /></motion.div>
         </div>
       </section>
 
