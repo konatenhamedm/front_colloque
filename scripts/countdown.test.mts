@@ -1,0 +1,20 @@
+import { bornes, decouper, parseHeures, phaseA } from '../src/lib/countdown.ts'
+let ko = 0
+const eq = (nom: string, a: unknown, b: unknown) => { const ok = JSON.stringify(a) === JSON.stringify(b); if (!ok) ko++; console.log(ok ? 'OK  ' : 'FAIL', nom, ok ? '' : `→ ${JSON.stringify(a)} ≠ ${JSON.stringify(b)}`) }
+eq('parse « 08h00 – 16h00 »', parseHeures('08h00 – 16h00'), [[8, 0], [16, 0]])
+eq('parse « 9h30 »', parseHeures('9h30'), [[9, 30]])
+eq('parse sans heure', parseHeures(null), [])
+const { debut, fin } = bornes('2026-11-26', '2026-11-26', '08h00 – 16h00')
+eq('début = 26/11/2026 08:00 UTC', new Date(debut).toISOString(), '2026-11-26T08:00:00.000Z')
+eq('fin = 26/11/2026 16:00 UTC', new Date(fin).toISOString(), '2026-11-26T16:00:59.000Z')
+eq('sans heures : début 00:00, fin 23:59', [new Date(bornes('2026-11-26', '2026-11-27', null).debut).toISOString(), new Date(bornes('2026-11-26', '2026-11-27', null).fin).toISOString()], ['2026-11-26T00:00:00.000Z', '2026-11-27T23:59:59.000Z'])
+const t = (iso: string) => Date.parse(iso)
+eq('phase avant', phaseA(t('2026-11-10T00:00:00Z'), debut, fin), 'avant')
+eq('phase en cours (à 08:00 pile)', phaseA(debut, debut, fin), 'en-cours')
+eq('phase en cours (12:00)', phaseA(t('2026-11-26T12:00:00Z'), debut, fin), 'en-cours')
+eq('phase terminé', phaseA(t('2026-11-26T17:00:00Z'), debut, fin), 'termine')
+eq('16 jours avant (10/11 à 00:00)', decouper(debut - t('2026-11-10T00:00:00Z')), { jours: 16, heures: 8, minutes: 0, secondes: 0 })
+eq('1 jour 1 h 1 min 1 s', decouper(((24 + 1) * 3600 + 61) * 1000), { jours: 1, heures: 1, minutes: 1, secondes: 1 })
+eq('négatif -> zéro', decouper(-5000), { jours: 0, heures: 0, minutes: 0, secondes: 0 })
+eq('59 s', decouper(59_999), { jours: 0, heures: 0, minutes: 0, secondes: 59 })
+console.log(ko === 0 ? '\nTous les tests passent' : `\n${ko} ÉCHEC(S)`); process.exit(ko ? 1 : 0)

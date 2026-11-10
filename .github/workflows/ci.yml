@@ -20,3 +20,4 @@ jobs:
         env:
           VITE_API_URL: https://backforum.instapoint.site/api
       - run: npx tsc -b          # typecheck complet
+      - run: npm test           # logique du compte à rebours

@@ -9,19 +9,9 @@ import { PublicFooter, PublicHeader } from '../../layout/PublicLayout'
 import { buttonClass } from '../../components/ui/Button'
 import { PaymentChip } from '../../components/ui/PaymentLogo'
 import { Skeleton } from '../../components/ui/misc'
+import { Countdown } from './Countdown'
 
 const reveal = { initial: { opacity: 0, y: 18 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: '-60px' }, transition: { duration: 0.45, ease: 'easeOut' as const } }
-
-function Countdown({ iso }: { iso: string }) {
-  const days = Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000)
-  if (days < 0) return null
-  return (
-    <div className="inline-flex items-baseline gap-2 rounded-2xl bg-white/10 px-4 py-2 ring-1 ring-white/20 backdrop-blur">
-      <span className="font-display text-3xl font-extrabold tabular-nums text-white">{days === 0 ? '0' : days}</span>
-      <span className="text-sm font-semibold text-white/80">{days <= 1 ? 'jour restant' : 'jours restants'}</span>
-    </div>
-  )
-}
 
 function SectionTitle({ kicker, title, text }: { kicker: string; title: string; text?: string }) {
   return (
@@ -75,8 +65,8 @@ export function LandingPage() {
                 <a href="#paiement" className={buttonClass('light', 'lg', '!bg-white/10 !text-white ring-1 ring-white/25 hover:!bg-white/15')}>
                   {fraisUniques !== null ? `Frais : ${fcfa(fraisUniques)}` : 'Voir les tarifs'}
                 </a>
-                <Countdown iso={c.dateDebut} />
               </div>
+              <div className="mt-10"><Countdown dateDebut={c.dateDebut} dateFin={c.dateFin} heures={c.heures} /></div>
             </motion.div>
           )}
         </div>
