@@ -25,6 +25,18 @@ function InterviewVideo() {
   )
 }
 
+const reveal = { initial: { opacity: 0, y: 18 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: '-60px' }, transition: { duration: 0.45, ease: 'easeOut' as const } }
+
+function SectionTitle({ kicker, title, text }: { kicker: string; title: string; text?: string }) {
+  return (
+    <div className="mx-auto mb-10 max-w-2xl text-center">
+      <div className="text-xs font-extrabold uppercase tracking-[.18em] text-accent">{kicker}</div>
+      <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{title}</h2>
+      {text && <p className="mt-3 text-muted">{text}</p>}
+    </div>
+  )
+}
+
 export function LandingPage() {
   const { data: c, isLoading } = useQuery({ queryKey: ['colloque'], queryFn: () => api.get<Colloque>('/public/colloque') })
 
