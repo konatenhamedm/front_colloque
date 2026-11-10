@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
-import { Moon, Sun } from 'lucide-react'
+import { LogIn, Moon, Sun } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTheme } from '@/lib/theme'
 import { useScrollSpy } from '@/lib/useScrollSpy'
@@ -34,7 +34,7 @@ export function PublicHeader({ nav = false }: { nav?: boolean }) {
   const session = useSession()
   return (
     <header className="sticky top-0 z-40 border-b border-line/70 bg-surface/85 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4">
+      <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4 sm:gap-4">
         <Link to="/" aria-label="Accueil"><Logo /></Link>
         {nav && (
           <nav className="ml-6 hidden items-center gap-1 md:flex" aria-label="Sections">
@@ -45,7 +45,7 @@ export function PublicHeader({ nav = false }: { nav?: boolean }) {
           <button onClick={toggle} aria-label={dark ? 'Mode clair' : 'Mode sombre'} className="rounded-xl p-2 text-muted hover:bg-surface-2">{dark ? <Sun className="size-5" /> : <Moon className="size-5" />}</button>
           {session
             ? <Link to={isAdmin(session) ? '/admin' : '/espace'} className={buttonClass('secondary', 'sm')}>Mon espace</Link>
-            : <Link to="/connexion" className={buttonClass('ghost', 'sm', 'hidden sm:inline-flex')}>Se connecter</Link>}
+            : <Link to="/connexion" aria-label="Se connecter à mon espace" title="Se connecter à mon espace" className={buttonClass('secondary', 'sm', 'max-sm:!px-2.5')}><LogIn className="size-4" /><span className="hidden sm:inline">Se connecter</span></Link>}
           {!session && <Link to="/inscription" className={buttonClass('accent', 'sm')}>S'inscrire</Link>}
         </div>
       </div>

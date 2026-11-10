@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
-import { ArrowRight, CalendarDays, CheckCircle2, Clock, Gift, Utensils, GraduationCap, MapPin, Smartphone, Ticket, Users } from 'lucide-react'
+import { ArrowRight, LogIn, CalendarDays, CheckCircle2, Clock, Gift, Utensils, GraduationCap, MapPin, Smartphone, Ticket, Users } from 'lucide-react'
 import { api, assetUrl } from '@/lib/api'
 import type { Colloque } from '@/lib/types'
 import { fcfa, fmtDate, initials } from '@/lib/format'
@@ -66,6 +66,10 @@ export function LandingPage() {
                   {fraisUniques !== null ? `Frais : ${fcfa(fraisUniques)}` : 'Voir les tarifs'}
                 </a>
               </div>
+              <p className="mt-5 text-sm text-white/75">
+                Déjà inscrit ?{' '}
+                <Link to="/connexion" className="inline-flex items-center gap-1.5 font-bold text-white underline decoration-[#f0932f] decoration-2 underline-offset-4 hover:text-[#f0a35a]"><LogIn className="size-4" />Accéder à mon espace</Link>
+              </p>
               <div className="mt-10 flex justify-center"><Countdown dateDebut={c.dateDebut} dateFin={c.dateFin} heures={c.heures} /></div>
             </motion.div>
           )}
