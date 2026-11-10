@@ -16,6 +16,9 @@ export class ApiError extends Error {
   }
 }
 
+/** URL absolue d'un fichier public servi par l'API (photos, logos) : l'API renvoie un chemin /uploads/... */
+export const assetUrl = (path: string | null | undefined) => (path ? new URL(API_URL).origin + path : null)
+
 export const onSessionExpired = { handler: () => {} }
 
 export interface Meta { page: number; limit: number; total: number; pages: number }
@@ -55,6 +58,8 @@ export const api = {
     const r = await json<T[]>(path + qs(params))
     return { data: r.data, meta: r.meta ?? { page: 1, limit: r.data.length, total: r.data.length, pages: 1 } }
   },
+  put: async <T>(path: string, body: unknown) => (await json<T>(path, { method: 'PUT', body: JSON.stringify(body) })).data,
+  del: async (path: string) => { await json<null>(path, { method: 'DELETE' }) },
   post: async <T>(path: string, body?: unknown) =>
     (await json<T>(path, { method: 'POST', body: body instanceof FormData ? body : body === undefined ? undefined : JSON.stringify(body) })).data,
   /** Télécharge un fichier protégé (Authorization) puis le propose à l'enregistrement. */

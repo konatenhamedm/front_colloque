@@ -5,11 +5,12 @@ import type { ReactNode } from 'react'
 import { useTheme } from '@/lib/theme'
 import { useScrollSpy } from '@/lib/useScrollSpy'
 import { cn } from '@/lib/utils'
+import type { Personne } from '@/lib/types'
 import { isAdmin, useSession } from '@/lib/auth'
 import { Logo } from '../components/ui/Logo'
 import { buttonClass } from '../components/ui/Button'
 
-const SECTIONS: [string, string][] = [['intervenants', 'Intervenants'], ['themes', 'Thèmes'], ['tarifs', 'Tarifs'], ['programme', 'Calendrier'], ['paiement', 'Paiement']]
+const SECTIONS: [string, string][] = [['intervenants', 'Animateurs'], ['tarifs', 'Tarifs'], ['programme', 'Programme'], ['comite', 'Comité'], ['paiement', 'Paiement']]
 
 /** Lien de section avec indicateur animé (la pastille glisse d'un lien à l'autre). */
 function NavLink({ id, label, active, group }: { id: string; label: string; active: boolean; group: string }) {
@@ -57,14 +58,19 @@ export function PublicHeader({ nav = false }: { nav?: boolean }) {
   )
 }
 
-export function PublicFooter({ email, phones }: { email?: string; phones?: string[] }) {
+export function PublicFooter({ email, phones, personnes, organisateurs }: { email?: string; phones?: string[]; personnes?: Personne[]; organisateurs?: string[] }) {
   return (
     <footer className="border-t border-line bg-surface">
-      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
-        <Logo />
-        <div className="space-y-0.5 sm:text-right">
-          {email && <div>Contact : <a className="font-semibold text-brand hover:underline" href={`mailto:${email}`}>{email}</a></div>}
-          {phones && phones.length > 0 && <div>{phones.join(' · ')}</div>}
+      <div className="mx-auto grid max-w-6xl gap-6 px-4 py-8 text-sm text-muted md:grid-cols-[1fr_auto]">
+        <div>
+          <Logo />
+          {organisateurs && organisateurs.length > 0 && <p className="mt-3 max-w-md text-xs">Organisé par {organisateurs.join(' · ')}</p>}
+        </div>
+        <div className="space-y-1.5 md:text-right">
+          <div className="text-xs font-extrabold uppercase tracking-wider text-fg">Contacts</div>
+          {personnes && personnes.length > 0
+            ? personnes.map(p => <div key={p.nom}><strong className="text-fg">{p.nom}</strong> · {p.telephone}{p.email && <> · <a className="font-semibold text-brand hover:underline" href={`mailto:${p.email}`}>{p.email}</a></>}</div>)
+            : <>{email && <div><a className="font-semibold text-brand hover:underline" href={`mailto:${email}`}>{email}</a></div>}{phones && phones.length > 0 && <div>{phones.join(' · ')}</div>}</>}
         </div>
       </div>
     </footer>

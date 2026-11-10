@@ -2,18 +2,31 @@ export type Statut = 'PENDING_PAYMENT' | 'PAYMENT_VALIDATED' | 'ATTENDED_AND_VAL
 
 export interface Axe { id: number; code: string; libelle: string; ordre: number }
 export interface Categorie { id: number; code: string; libelle: string; montant: number }
-export interface Intervenant { nom: string; titre: string; photo: string | null }
-export interface Canal { code: string; libelle: string; instructions: string }
+/** Animateur ou logo affiché publiquement (photo = chemin /uploads/... ou null). */
+export interface PublicItem { id: number; nom: string; titre: string | null; role: string | null; photo: string | null }
+export interface Canal { code: string; libelle: string; numeros: string[]; instructions: string }
+export interface Personne { nom: string; telephone: string; email: string }
+export interface MembreComite { role: string; nom: string; details: string }
 export interface Colloque {
-  titre: string; sousTitre: string | null; theme: string; dateDebut: string; dateFin: string; lieu: string; modalite: string | null
+  sigle: string
+  titre: string; sousTitre: string | null; theme: string; dateDebut: string; dateFin: string; heures: string | null; lieu: string; modalite: string | null
+  cibles: string[]
   calendrier: { ordre: number; libelle: string; date: string }[]
   avantages: string[]
-  contacts: { email: string; telephones: string[]; beneficiaires: { nom: string; telephones: string[] }[]; organisateurs: string[] }
+  contacts: { email: string; telephones: string[]; personnes: Personne[]; organisateurs: string[] }
+  comite: MembreComite[]
   canauxPaiement: Canal[]
-  intervenants: Intervenant[]
+  intervenants: PublicItem[]
+  partenaires: PublicItem[]
   dateLimitePaiement: string
   axes: Axe[]; categories: Categorie[]
 }
+/** Élément géré dans Admin → Paramètres (animateur, signataire ou logo). */
+export interface ColloqueItem {
+  id: number; type: 'INTERVENANT' | 'SIGNATAIRE' | 'PARTENAIRE'; nom: string; titre: string | null; role: string | null
+  details: string | null; ordre: number; imageUrl: string | null; imageUuid: string | null
+}
+export interface ColloqueAdmin { colloque: Colloque; items: ColloqueItem[] }
 
 export interface User { id: number; email: string; nom: string; prenom: string; telephone: string | null; nomComplet: string }
 export interface Fichier { uuid: string; originalName: string; mimeType: string; size: number }

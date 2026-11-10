@@ -6,6 +6,7 @@ import { api, ApiError } from '@/lib/api'
 import { session } from '@/lib/auth'
 import { COUNTRIES, DEFAULT_COUNTRY } from '@/lib/countries'
 import { fcfa } from '@/lib/format'
+import { cn } from '@/lib/utils'
 import type { Colloque } from '@/lib/types'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
@@ -112,11 +113,6 @@ function FormStep({ token }: { token: string }) {
               {c?.categories.map(x => <option key={x.id} value={x.id}>{x.libelle} — {fcfa(x.montant)}</option>)}
             </Select>
           </Field>
-          <Field label="Type de participation" required>
-            <Select value={f.typeParticipation} onChange={set('typeParticipation')}>
-              <option value="AUDITEUR">Auditeur</option><option value="COMMUNICANT">Communicant</option>
-            </Select>
-          </Field>
         </div>
       </Card>
 
@@ -128,10 +124,14 @@ function FormStep({ token }: { token: string }) {
           {categorie
             ? <p className="mt-2">Montant à payer : <strong className="text-base">{fcfa(categorie.montant)}</strong></p>
             : <p className="mt-2 text-muted">Choisissez votre catégorie ci-dessus pour voir le montant à payer.</p>}
-          <p className="mt-2 text-muted">Envoyez ce montant, par l'un de ces moyens, à l'un des numéros suivants :</p>
-          <ul className="mt-3 flex flex-wrap gap-2">{c?.canauxPaiement.map(x => <li key={x.code}><PaymentChip code={x.code} label={x.libelle} /></li>)}</ul>
-          <ul className="mt-2 space-y-1.5">
-            {c?.contacts.beneficiaires.map(b => <li key={b.nom} className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-surface px-3 py-2"><strong>{b.nom}</strong><span className="font-mono text-xs font-bold text-brand">{b.telephones.join(' / ')}</span></li>)}
+          <p className="mt-2 text-muted">Envoyez ce montant à l'un des numéros suivants, selon le moyen de paiement choisi :</p>
+          <ul className="mt-3 space-y-2">
+            {c?.canauxPaiement.map(x => (
+              <li key={x.code} className={cn('flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl bg-surface p-2.5 ring-2 transition', f.canal === x.code ? 'ring-brand' : 'ring-transparent')}>
+                <PaymentChip code={x.code} label={x.libelle} />
+                <span className="flex flex-wrap gap-2">{x.numeros.map(n => <span key={n} className="rounded-lg bg-brand-soft px-2.5 py-1 font-mono text-sm font-bold text-brand">{n}</span>)}</span>
+              </li>
+            ))}
           </ul>
           <p className="mt-2 text-xs text-muted">Les frais de participation ne sont pas remboursables.</p>
         </div>
