@@ -59,8 +59,9 @@ export function LandingPage() {
             <div className="space-y-4"><Skeleton className="h-6 w-40 !bg-white/10" /><Skeleton className="h-24 w-full max-w-3xl !bg-white/10" /></div>
           ) : (
             <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="mx-auto max-w-4xl text-center">
-              <span className="inline-flex flex-wrap items-center gap-x-2 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider ring-1 ring-white/20">
-                {c.titre}{c.sousTitre && <span className="text-[#f0a35a]">· {c.sousTitre}</span>}
+              <span className="inline-flex flex-col items-center justify-center gap-0.5 rounded-full bg-white/10 px-5 py-2 text-center text-xs font-bold uppercase tracking-wider ring-1 ring-white/20 sm:flex-row sm:gap-x-2 sm:px-3.5 sm:py-1.5">
+                <span>{c.titre}</span>
+                {c.sousTitre && <><span aria-hidden className="hidden text-[#f0a35a] sm:inline">·</span><span className="text-[#f0a35a]">{c.sousTitre}</span></>}
               </span>
               <h1 className="mt-5 font-display text-3xl font-extrabold leading-[1.15] tracking-tight sm:text-4xl lg:text-5xl">{c.theme}</h1>
               <div className="mt-7 flex flex-wrap justify-center gap-x-6 gap-y-3 text-sm font-semibold">
@@ -93,9 +94,19 @@ export function LandingPage() {
       {/* ───── Organisateurs (logos) ───── */}
       {logos.length > 0 && (
         <section className="border-b border-line bg-surface" aria-label="Organisateurs">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-10 gap-y-4 px-4 py-5">
+          <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 py-6">
             <span className="text-[11px] font-extrabold uppercase tracking-[.18em] text-muted">Organisé par</span>
-            {logos.map(l => <img key={l.id} src={assetUrl(l.photo)!} alt={l.role ?? l.nom} title={l.nom} className="h-12 w-auto object-contain" loading="lazy" />)}
+            <div className="flex flex-wrap items-start justify-center gap-x-14 gap-y-6">
+              {logos.map(l => (
+                <figure key={l.id} className="flex max-w-[15rem] flex-col items-center text-center">
+                  <img src={assetUrl(l.photo)!} alt={l.role ?? l.nom} title={l.nom} className="h-14 w-auto object-contain" loading="lazy" />
+                  <figcaption className="mt-2 text-xs leading-snug text-muted">
+                    <span className="block font-bold text-fg">{l.role ?? l.nom}</span>
+                    {l.titre && <span className="block">Responsable : <strong className="text-fg">{l.titre}</strong></span>}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
           </div>
         </section>
       )}

@@ -8,7 +8,7 @@ import { Input } from '../../components/ui/Field'
 import { EmptyState, PageHeader } from '../../components/ui/misc'
 import { useToast } from '../../components/ui/Toast'
 
-interface Lien { email: string; lien: string; creeLe: string; expireLe: string }
+interface Lien { email: string; lien: string; creeLe: string; expireLe: string; erreurEnvoi?: string | null }
 
 function reste(expireLe: string, now: number) {
   const s = Math.max(0, Math.floor((new Date(expireLe).getTime() - now) / 1000))
@@ -38,6 +38,7 @@ export function LiensInscription() {
     onSuccess: async (l, envoyer) => {
       qc.invalidateQueries({ queryKey: ['liens'] }); setEmail('')
       const ok = await copier(l.lien)
+      if (envoyer && l.erreurEnvoi) { toast.error(`E-mail NON envoyé (${l.erreurEnvoi.slice(0, 160)}). Lien généré : copiez-le depuis la liste.`); return }
       toast.success(envoyer ? 'Lien généré et envoyé par e-mail.' : ok ? 'Lien généré et copié dans le presse-papiers.' : 'Lien généré.')
     },
     onError: e => toast.error(e instanceof ApiError ? e.message : 'Génération impossible.'),
