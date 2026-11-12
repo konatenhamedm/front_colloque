@@ -11,12 +11,12 @@ import { PaymentChip } from '../../components/ui/PaymentLogo'
 import { Skeleton } from '../../components/ui/misc'
 import { Countdown } from './Countdown'
 
-/** Interview d'un doyen (YouTube Shorts, format vertical). */
-const INTERVIEW_VIDEO_ID = 'Z3CMiZOXd2c'
+/** Interview d'un doyen (YouTube, format paysage 16:9). */
+const INTERVIEW_VIDEO_ID = 'bYmlezQCcH8'
 
 function InterviewVideo() {
   return (
-    <div className="relative mx-auto aspect-[9/16] w-[min(80vw,300px)] overflow-hidden rounded-[28px] border-4 border-white/15 bg-black shadow-2xl shadow-black/50 ring-1 ring-white/10">
+    <div className="relative mx-auto aspect-video w-[min(92vw,560px)] overflow-hidden rounded-2xl border-4 border-white/15 bg-black shadow-2xl shadow-black/50 ring-1 ring-white/10">
       <iframe className="absolute inset-0 size-full" title="Témoignage d'un doyen — FJCG 2026"
         src={`https://www.youtube-nocookie.com/embed/${INTERVIEW_VIDEO_ID}?rel=0&playsinline=1`}
         loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture; fullscreen" allowFullScreen
@@ -156,7 +156,7 @@ export function LandingPage() {
       <section id="interview" className="relative scroll-mt-28 overflow-hidden bg-[#0f1a4a] py-20 text-white md:scroll-mt-20" aria-label="Interview">
         <div className="pointer-events-none absolute -left-32 top-0 size-96 rounded-full bg-accent/20 blur-3xl" />
         <div className="pointer-events-none absolute -right-32 bottom-0 size-96 rounded-full bg-[#2f55c4]/30 blur-3xl" />
-        <div className="relative mx-auto grid max-w-5xl items-center gap-10 px-4 md:grid-cols-[1fr_auto] md:gap-16">
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 md:grid-cols-[1fr_auto] md:gap-16">
           <motion.div {...reveal} className="text-center md:text-left">
             <div className="text-xs font-extrabold uppercase tracking-[.18em] text-accent">Ils soutiennent le forum</div>
             <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">Le témoignage d'un doyen</h2>
