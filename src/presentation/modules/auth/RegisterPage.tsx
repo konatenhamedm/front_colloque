@@ -1,6 +1,6 @@
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { CheckCircle2, FileUp, Loader2, MailCheck, ShieldCheck, Wallet } from 'lucide-react'
+import { CheckCircle2, FileUp, ShieldCheck, Wallet } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { api, ApiError } from '@/lib/api'
 import { session } from '@/lib/auth'
@@ -14,45 +14,13 @@ import { Field, Input, Select } from '../../components/ui/Field'
 import { PaymentChip, PaymentPicker } from '../../components/ui/PaymentLogo'
 import { useToast } from '../../components/ui/Toast'
 
-/** Étape 1 : saisie de l'e-mail -> un lien (avec jeton) est envoyé. */
-function StartStep() {
-  const [email, setEmail] = useState('')
-  const [sent, setSent] = useState(false)
-  const m = useMutation({ mutationFn: () => api.post('/auth/inscription/demarrer', { email }), onSuccess: () => setSent(true) })
-
-  if (sent) {
-    return (
-      <Card className="mx-auto max-w-md p-8 text-center">
-        <span className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-ok-soft text-ok"><MailCheck className="size-7" /></span>
-        <h1 className="mt-5 font-display text-2xl font-extrabold">Consultez votre boîte mail</h1>
-        <p className="mt-2 text-sm text-muted">Un lien d'inscription vient d'être envoyé à <strong className="text-fg">{email}</strong>. Il est valable 1 heure. Pensez à vérifier vos courriers indésirables.</p>
-        <button onClick={() => setSent(false)} className="mt-6 text-sm font-bold text-brand hover:underline">Utiliser une autre adresse</button>
-      </Card>
-    )
-  }
-  return (
-    <Card className="mx-auto max-w-md p-8">
-      <h1 className="font-display text-2xl font-extrabold">Inscription</h1>
-      <p className="mt-2 text-sm text-muted">Saisissez votre adresse e-mail : nous vous enverrons un lien pour continuer votre inscription.</p>
-      <form className="mt-6 space-y-4" onSubmit={(e: FormEvent) => { e.preventDefault(); m.mutate() }}>
-        <Field label="Adresse e-mail" required error={m.error instanceof ApiError ? m.error.message : undefined}>
-          <Input type="email" autoComplete="email" required autoFocus value={email} onChange={e => setEmail(e.target.value)} placeholder="vous@exemple.com" />
-        </Field>
-        <Button type="submit" loading={m.isPending} className="w-full" size="lg">Recevoir mon lien</Button>
-      </form>
-      <p className="mt-5 text-center text-sm text-muted">Déjà inscrit ? <a href="/connexion" className="font-bold text-brand hover:underline">Se connecter</a></p>
-    </Card>
-  )
-}
-
-/** Étape 2 : lien valide -> formulaire complet + preuve de paiement. */
-function FormStep({ token }: { token: string }) {
+/** Inscription directe : e-mail, informations, paiement et mot de passe sur une seule page (plus de lien envoyé par e-mail). */
+export function RegisterPage(_props: { token?: string }) {
   const nav = useNavigate()
   const toast = useToast()
   const { data: c } = useQuery({ queryKey: ['colloque'], queryFn: () => api.get<Colloque>('/public/colloque') })
-  const check = useQuery({ queryKey: ['inscription-token', token], queryFn: () => api.get<{ email: string }>('/auth/inscription/verifier', { token }), retry: false })
 
-  const [f, setF] = useState({ nom: '', prenom: '', telephone: '', institution: '', pays: DEFAULT_COUNTRY, categorieId: '', typeParticipation: 'AUDITEUR', canal: '', reference: '', repas: false, password: '', password2: '' })
+  const [f, setF] = useState({ email: '', nom: '', prenom: '', telephone: '', institution: '', pays: DEFAULT_COUNTRY, categorieId: '', typeParticipation: 'AUDITEUR', canal: '', reference: '', repas: false, password: '', password2: '' })
   const [file, setFile] = useState<File | null>(null)
   const [localError, setLocalError] = useState<string | null>(null)
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF(s => ({ ...s, [k]: e.target.value }))
@@ -60,24 +28,12 @@ function FormStep({ token }: { token: string }) {
   const submit = useMutation({
     mutationFn: async () => {
       const fd = new FormData()
-      fd.append('token', token)
       Object.entries(f).forEach(([k, v]) => k !== 'password2' && fd.append(k, String(v)))
       if (file) fd.append('justificatif', file)
       return api.post<{ token: string }>('/auth/inscription', fd)
     },
     onSuccess: async r => { await session.adopt(r.token); toast.success('Inscription enregistrée !'); nav({ to: '/espace' }) },
   })
-
-  if (check.isLoading) return <div className="flex justify-center py-20"><Loader2 className="size-8 animate-spin text-brand" /></div>
-  if (check.isError) {
-    return (
-      <Card className="mx-auto max-w-md p-8 text-center">
-        <h1 className="font-display text-2xl font-extrabold">Lien invalide ou expiré</h1>
-        <p className="mt-2 text-sm text-muted">{check.error instanceof ApiError ? check.error.message : 'Le lien ne peut pas être utilisé.'}</p>
-        <a href="/inscription" className="mt-6 inline-block font-bold text-brand hover:underline">Recevoir un nouveau lien</a>
-      </Card>
-    )
-  }
 
   const categorie = c?.categories.find(x => String(x.id) === f.categorieId)
 
@@ -95,13 +51,14 @@ function FormStep({ token }: { token: string }) {
   return (
     <form onSubmit={onSubmit} className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">Finalisez votre inscription</h1>
-        <p className="mt-1 text-sm text-muted">Adresse vérifiée : <strong className="text-fg">{check.data?.email}</strong></p>
+        <h1 className="font-display text-3xl font-extrabold tracking-tight">Inscription au forum</h1>
+        <p className="mt-1 text-sm text-muted">Remplissez ce formulaire en une seule fois. Déjà inscrit ? <a href="/connexion" className="font-bold text-brand hover:underline">Se connecter</a></p>
       </div>
 
       <Card className="p-6">
         <h2 className="mb-4 flex items-center gap-2 font-display text-base font-extrabold"><span className="flex size-6 items-center justify-center rounded-full bg-brand text-xs text-brand-fg">1</span>Vos informations</h2>
         <div className="grid gap-4 sm:grid-cols-2">
+          <div className="sm:col-span-2"><Field label="Adresse e-mail" required hint="Elle servira d'identifiant pour vous connecter"><Input type="email" required autoFocus autoComplete="email" value={f.email} onChange={set('email')} placeholder="vous@exemple.com" /></Field></div>
           <Field label="Nom" required><Input required value={f.nom} onChange={set('nom')} autoComplete="family-name" /></Field>
           <Field label="Prénoms" required><Input required value={f.prenom} onChange={set('prenom')} autoComplete="given-name" /></Field>
           <Field label="Téléphone"><Input type="tel" value={f.telephone} onChange={set('telephone')} autoComplete="tel" placeholder="07 00 00 00 00" /></Field>
@@ -177,8 +134,4 @@ function FormStep({ token }: { token: string }) {
       </div>
     </form>
   )
-}
-
-export function RegisterPage({ token }: { token?: string }) {
-  return token ? <FormStep token={token} /> : <StartStep />
 }
