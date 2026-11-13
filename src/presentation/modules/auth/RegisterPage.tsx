@@ -15,7 +15,7 @@ import { PaymentChip, PaymentPicker } from '../../components/ui/PaymentLogo'
 import { useToast } from '../../components/ui/Toast'
 
 /** Inscription directe : e-mail, informations, paiement et mot de passe sur une seule page (plus de lien envoyé par e-mail). */
-export function RegisterPage(_props: { token?: string }) {
+export function RegisterPage() {
   const nav = useNavigate()
   const toast = useToast()
   const { data: c } = useQuery({ queryKey: ['colloque'], queryFn: () => api.get<Colloque>('/public/colloque') })
