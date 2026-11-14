@@ -31,7 +31,7 @@ export interface ColloqueAdmin { colloque: Colloque; items: ColloqueItem[] }
 export interface User { id: number; email: string; nom: string; prenom: string; telephone: string | null; nomComplet: string }
 export interface Fichier { uuid: string; originalName: string; mimeType: string; size: number }
 export interface Paiement {
-  id: number; canal: string; canalLabel: string; montant: number; reference: string | null
+  id: number; canal: string; canalLabel: string; montant: number; reference: string | null; numeroDepot?: string | null
   statut: 'EN_ATTENTE' | 'VALIDE' | 'REJETE'; motifRejet: string | null; justificatif: Fichier | null; createdAt?: string
 }
 export interface Inscription {
@@ -48,7 +48,7 @@ export interface Stats {
   inscrits: { total: number; valides: number; enAttente: number; rejetes: number; participationsValidees: number; attestationsEmises: number }
   tauxConversion: number
   parStatut: { statut: Statut; libelle: string; total: number }[]
-  finances: { totalCollecte: number; montantEnAttente: number; parCanal: { canal: string; libelle: string; total: number; montant: number; part: number }[] }
+  finances: { totalCollecte: number; montantEnAttente: number; parCanal: { canal: string; libelle: string; total: number; montant: number; part: number }[]; parCanalNumero: { canal: string; libelle: string; numero: string | null; total: number; montant: number; part: number }[] }
   parCategorie: { categorie: string; total: number }[]
   inscriptionsParJour: { jour: string; total: number }[]
 }

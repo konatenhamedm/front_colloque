@@ -58,7 +58,7 @@ export function Validations() {
                 <li key={p.id}>
                   <button onClick={() => setSelected(p.id)} className={cn('flex w-full items-center gap-3 px-4 py-3.5 text-left transition hover:bg-surface-2', current?.id === p.id && 'bg-brand-soft')}>
                     <Avatar name={p.participant} />
-                    <span className="min-w-0 flex-1"><span className="block truncate text-sm font-bold">{p.participant}</span><span className="block truncate text-xs text-muted">{p.canalLabel} · {p.reference ?? 'reçu joint'}</span></span>
+                    <span className="min-w-0 flex-1"><span className="block truncate text-sm font-bold">{p.participant}</span><span className="block truncate text-xs text-muted">{p.canalLabel}{p.numeroDepot ? ` ${p.numeroDepot}` : ''} · {p.reference ?? 'reçu joint'}</span></span>
                     <span className="text-xs font-extrabold tabular-nums">{fcfa(p.montant)}</span>
                   </button>
                 </li>
@@ -74,7 +74,7 @@ export function Validations() {
                   <div><dt className="text-xs text-muted">Catégorie</dt><dd className="font-bold">{current.categorieLibelle}</dd></div>
                   <div><dt className="text-xs text-muted">Montant attendu</dt><dd className="font-extrabold text-accent">{fcfa(current.montant)}</dd></div>
                   <div><dt className="text-xs text-muted">Soumis le</dt><dd className="font-bold">{current.createdAt ? fmtDate(current.createdAt) : '—'}</dd></div>
-                  <div><dt className="text-xs text-muted">Canal</dt><dd><PaymentChip code={current.canal} label={current.canalLabel} /></dd></div>
+                  <div><dt className="text-xs text-muted">Canal</dt><dd><PaymentChip code={current.canal} label={current.canalLabel} />{current.numeroDepot && <span className="ml-2 font-mono text-sm font-bold">{current.numeroDepot}</span>}</dd></div>
                   <div className="sm:col-span-2"><dt className="text-xs text-muted">Référence déclarée</dt><dd className="font-mono text-sm font-bold">{current.reference ?? <span className="font-sans text-muted">Non renseignée (voir le reçu)</span>}</dd></div>
                 </dl>
                 {current.justificatif ? <Proof uuid={current.justificatif.uuid} /> : <p className="rounded-xl bg-warn-soft p-3 text-sm font-semibold text-warn">Aucun reçu joint : vérifiez la référence ci-dessus dans votre relevé {current.canalLabel}.</p>}

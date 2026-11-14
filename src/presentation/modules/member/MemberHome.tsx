@@ -9,6 +9,7 @@ import { Button } from '../../components/ui/Button'
 import { Card, CardHeader } from '../../components/ui/Card'
 import { StatutBadge } from '../../components/ui/Badge'
 import { Field, Input } from '../../components/ui/Field'
+import { NumeroDepotPicker } from '../../components/ui/NumeroDepot'
 import { PaymentPicker } from '../../components/ui/PaymentLogo'
 import { Stepper } from '../../components/ui/Stepper'
 import { useToast } from '../../components/ui/Toast'
@@ -20,17 +21,19 @@ function Correction() {
   const toast = useToast()
   const { data: c } = useQuery({ queryKey: ['colloque'], queryFn: () => api.get<Colloque>('/public/colloque') })
   const [canal, setCanal] = useState('')
+  const [numeroDepot, setNumeroDepot] = useState('')
   const [reference, setReference] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const m = useMutation({
-    mutationFn: () => { if (!canal) throw new ApiError(400, 'Choisissez le mode de paiement.'); const fd = new FormData(); fd.append('canal', canal); fd.append('reference', reference); if (file) fd.append('justificatif', file); return api.post('/espace/paiement/corriger', fd) },
+    mutationFn: () => { if (!canal) throw new ApiError(400, 'Choisissez le mode de paiement.'); const fd = new FormData(); fd.append('canal', canal); fd.append('numeroDepot', numeroDepot); fd.append('reference', reference); if (file) fd.append('justificatif', file); return api.post('/espace/paiement/corriger', fd) },
     onSuccess: async () => { await session.refresh(); toast.success('Nouvelle preuve envoyée.') },
   })
   return (
     <Card>
       <CardHeader title="Corriger mon paiement" subtitle="Renvoyez une preuve de paiement valide." />
       <form className="grid gap-4 p-5 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); m.mutate() }}>
-        <div className="sm:col-span-2"><span className="mb-2 block text-xs font-bold">Mode de paiement <span className="text-bad">*</span></span><PaymentPicker options={c?.canauxPaiement ?? []} value={canal} onChange={setCanal} /></div>
+        <div className="sm:col-span-2"><span className="mb-2 block text-xs font-bold">Mode de paiement <span className="text-bad">*</span></span><PaymentPicker options={c?.canauxPaiement ?? []} value={canal} onChange={code => { setCanal(code); setNumeroDepot('') }} /></div>
+        <div className="sm:col-span-2"><NumeroDepotPicker canal={c?.canauxPaiement.find(x => x.code === canal)} value={numeroDepot} onChange={setNumeroDepot} /></div>
         <div className="sm:col-span-2"><Field label="Référence de la transaction" hint="Facultative si vous joignez le reçu"><Input value={reference} onChange={e => setReference(e.target.value)} /></Field></div>
         <div className="sm:col-span-2">
           <Field label="Reçu ou capture" hint="Facultatif si vous indiquez la référence">

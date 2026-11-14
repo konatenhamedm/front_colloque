@@ -11,6 +11,7 @@ import type { Colloque } from '@/lib/types'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { Field, Input, Select } from '../../components/ui/Field'
+import { NumeroDepotPicker } from '../../components/ui/NumeroDepot'
 import { PaymentChip, PaymentPicker } from '../../components/ui/PaymentLogo'
 import { useToast } from '../../components/ui/Toast'
 
@@ -20,7 +21,7 @@ export function RegisterPage() {
   const toast = useToast()
   const { data: c } = useQuery({ queryKey: ['colloque'], queryFn: () => api.get<Colloque>('/public/colloque') })
 
-  const [f, setF] = useState({ email: '', nom: '', prenom: '', telephone: '', institution: '', pays: DEFAULT_COUNTRY, categorieId: '', typeParticipation: 'AUDITEUR', canal: '', reference: '', repas: false, password: '', password2: '' })
+  const [f, setF] = useState({ email: '', nom: '', prenom: '', telephone: '', institution: '', pays: DEFAULT_COUNTRY, categorieId: '', typeParticipation: 'AUDITEUR', canal: '', numeroDepot: '', reference: '', repas: false, password: '', password2: '' })
   const [file, setFile] = useState<File | null>(null)
   const [localError, setLocalError] = useState<string | null>(null)
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF(s => ({ ...s, [k]: e.target.value }))
@@ -103,8 +104,9 @@ export function RegisterPage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <span className="mb-2 block text-xs font-bold">Mode de paiement utilisé <span className="text-bad">*</span></span>
-            <PaymentPicker options={c?.canauxPaiement ?? []} value={f.canal} onChange={code => setF(s => ({ ...s, canal: code }))} />
+            <PaymentPicker options={c?.canauxPaiement ?? []} value={f.canal} onChange={code => setF(s => ({ ...s, canal: code, numeroDepot: '' }))} />
           </div>
+          <div className="sm:col-span-2"><NumeroDepotPicker canal={c?.canauxPaiement.find(x => x.code === f.canal)} value={f.numeroDepot} onChange={n => setF(s => ({ ...s, numeroDepot: n }))} /></div>
           <div className="sm:col-span-2"><Field label="Référence de la transaction" hint="ID visible dans le SMS ou le reçu"><Input value={f.reference} onChange={set('reference')} /></Field></div>
         </div>
         <div className="mt-4">
