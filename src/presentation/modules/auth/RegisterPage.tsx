@@ -42,6 +42,7 @@ export function RegisterPage() {
     e.preventDefault()
     setLocalError(null)
     if (!f.canal) return setLocalError('Choisissez le mode de paiement que vous avez utilisé.')
+    if ((c?.canauxPaiement.find(x => x.code === f.canal)?.numeros.length ?? 0) > 1 && !f.numeroDepot) return setLocalError('Indiquez le numéro sur lequel vous avez déposé votre paiement.')
     if (f.password.length < 8) return setLocalError('Le mot de passe doit contenir au moins 8 caractères.')
     if (f.password !== f.password2) return setLocalError('Les mots de passe ne correspondent pas.')
     if (!f.reference.trim() && !file) return setLocalError('Indiquez la référence de la transaction ou joignez le reçu de votre paiement.')
@@ -106,7 +107,7 @@ export function RegisterPage() {
             <span className="mb-2 block text-xs font-bold">Mode de paiement utilisé <span className="text-bad">*</span></span>
             <PaymentPicker options={c?.canauxPaiement ?? []} value={f.canal} onChange={code => setF(s => ({ ...s, canal: code, numeroDepot: '' }))} />
           </div>
-          <div className="sm:col-span-2"><NumeroDepotPicker canal={c?.canauxPaiement.find(x => x.code === f.canal)} value={f.numeroDepot} onChange={n => setF(s => ({ ...s, numeroDepot: n }))} /></div>
+          <div className="sm:col-span-2"><NumeroDepotPicker required canal={c?.canauxPaiement.find(x => x.code === f.canal)} value={f.numeroDepot} onChange={n => setF(s => ({ ...s, numeroDepot: n }))} /></div>
           <div className="sm:col-span-2"><Field label="Référence de la transaction" hint="ID visible dans le SMS ou le reçu"><Input value={f.reference} onChange={set('reference')} /></Field></div>
         </div>
         <div className="mt-4">

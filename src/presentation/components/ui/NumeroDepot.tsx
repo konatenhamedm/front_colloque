@@ -2,11 +2,11 @@ import type { Canal } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 /** Choix (facultatif) du numéro sur lequel le paiement a été déposé, quand le canal en propose plusieurs. */
-export function NumeroDepotPicker({ canal, value, onChange }: { canal?: Canal; value: string; onChange: (n: string) => void }) {
+export function NumeroDepotPicker({ canal, value, onChange, required = false }: { canal?: Canal; value: string; onChange: (n: string) => void; required?: boolean }) {
   if (!canal || canal.numeros.length < 2) return null
   return (
     <div role="radiogroup" aria-label={`Numéro ${canal.libelle} utilisé`}>
-      <span className="mb-2 block text-xs font-bold">Numéro {canal.libelle} sur lequel vous avez déposé</span>
+      <span className="mb-2 block text-xs font-bold">Numéro {canal.libelle} sur lequel vous avez déposé{required && <span className="text-bad"> *</span>}</span>
       <div className="flex flex-wrap gap-2">
         {canal.numeros.map(n => (
           <button key={n} type="button" role="radio" aria-checked={value === n} onClick={() => onChange(value === n ? '' : n)}
@@ -15,7 +15,7 @@ export function NumeroDepotPicker({ canal, value, onChange }: { canal?: Canal; v
           </button>
         ))}
       </div>
-      <p className="mt-1.5 text-xs text-muted">Facultatif : cela aide les organisateurs à retrouver votre paiement.</p>
+      <p className="mt-1.5 text-xs text-muted">Cela aide les organisateurs à retrouver votre paiement.</p>
     </div>
   )
 }

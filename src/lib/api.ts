@@ -59,6 +59,7 @@ export const api = {
     return { data: r.data, meta: r.meta ?? { page: 1, limit: r.data.length, total: r.data.length, pages: 1 } }
   },
   put: async <T>(path: string, body: unknown) => (await json<T>(path, { method: 'PUT', body: JSON.stringify(body) })).data,
+  patch: async <T>(path: string, body: unknown) => (await json<T>(path, { method: 'PATCH', body: JSON.stringify(body) })).data,
   del: async (path: string) => { await json<null>(path, { method: 'DELETE' }) },
   post: async <T>(path: string, body?: unknown) =>
     (await json<T>(path, { method: 'POST', body: body instanceof FormData ? body : body === undefined ? undefined : JSON.stringify(body) })).data,

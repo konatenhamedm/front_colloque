@@ -1,12 +1,67 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { Banknote, Clock, Download, Receipt } from 'lucide-react'
-import { api } from '@/lib/api'
+import { api, ApiError } from '@/lib/api'
 import { fcfa } from '@/lib/format'
-import type { Stats } from '@/lib/types'
+import type { Colloque, PaiementQueue, Stats } from '@/lib/types'
 import { Button } from '../../components/ui/Button'
 import { Card, CardHeader, KpiCard } from '../../components/ui/Card'
+import { Select } from '../../components/ui/Field'
 import { PageHeader } from '../../components/ui/misc'
 import { useToast } from '../../components/ui/Toast'
+
+/** Paiements validés : l'administrateur peut corriger le numéro de dépôt de chacun. */
+function PaiementsValides() {
+  const qc = useQueryClient()
+  const toast = useToast()
+  const [page, setPage] = useState(1)
+  const { data: c } = useQuery({ queryKey: ['colloque'], queryFn: () => api.get<Colloque>('/public/colloque') })
+  const list = useQuery({ queryKey: ['paiements-valides', page], queryFn: () => api.page<PaiementQueue>('/admin/paiements/valides', { page, limit: 15 }), placeholderData: p => p })
+  const save = useMutation({
+    mutationFn: ({ id, numeroDepot }: { id: number; numeroDepot: string }) => api.patch(`/admin/paiements/${id}/numero-depot`, { numeroDepot }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['paiements-valides'] }); qc.invalidateQueries({ queryKey: ['stats'] }); toast.success('Numéro de dépôt mis à jour.') },
+    onError: e => toast.error(e instanceof ApiError ? e.message : 'Modification impossible.'),
+  })
+  const rows = list.data?.data ?? []
+  const meta = list.data?.meta
+  return (
+    <Card className="mt-6">
+      <CardHeader title="Paiements validés" subtitle="Corrigez le numéro de dépôt si le participant s'est trompé ou ne l'a pas précisé." />
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[720px] text-left text-sm">
+          <thead><tr className="border-b border-line text-[11px] font-bold uppercase tracking-wide text-muted"><th className="px-5 py-3">Participant</th><th className="px-5 py-3">Canal</th><th className="px-5 py-3">N° de téléphone</th><th className="px-5 py-3 text-right">Montant</th></tr></thead>
+          <tbody>
+            {rows.map(p => {
+              const numeros = c?.canauxPaiement.find(x => x.code === p.canal)?.numeros ?? []
+              return (
+                <tr key={p.id} className="border-b border-line/70 last:border-0">
+                  <td className="px-5 py-3"><div className="font-bold">{p.participant}</div><div className="text-xs text-muted">{p.participantEmail}</div></td>
+                  <td className="px-5 py-3 font-semibold">{p.canalLabel}</td>
+                  <td className="px-5 py-3">
+                    <Select aria-label={`Numéro de dépôt de ${p.participant}`} className="max-w-[13rem] font-mono" value={p.numeroDepot ?? ''} disabled={save.isPending && save.variables?.id === p.id}
+                      onChange={e => save.mutate({ id: p.id, numeroDepot: e.target.value })}>
+                      <option value="">Non précisé</option>
+                      {numeros.map(n => <option key={n} value={n}>{n}</option>)}
+                    </Select>
+                  </td>
+                  <td className="px-5 py-3 text-right font-extrabold tabular-nums">{fcfa(p.montant)}</td>
+                </tr>
+              )
+            })}
+            {!list.isLoading && rows.length === 0 && <tr><td colSpan={4} className="px-5 py-10 text-center text-muted">Aucun paiement validé pour le moment.</td></tr>}
+          </tbody>
+        </table>
+      </div>
+      {meta && meta.pages > 1 && (
+        <div className="flex items-center justify-between border-t border-line px-5 py-3 text-sm">
+          <Button variant="secondary" size="sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>Précédent</Button>
+          <span className="text-muted">Page {meta.page} / {meta.pages}</span>
+          <Button variant="secondary" size="sm" disabled={page >= meta.pages} onClick={() => setPage(p => p + 1)}>Suivant</Button>
+        </div>
+      )}
+    </Card>
+  )
+}
 
 export function Finances() {
   const toast = useToast()
@@ -45,6 +100,7 @@ export function Finances() {
           </table>
         </div>
       </Card>
+      <PaiementsValides />
     </>
   )
 }
